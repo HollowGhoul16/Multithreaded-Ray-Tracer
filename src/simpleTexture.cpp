@@ -8,6 +8,7 @@
 #include <limits>
 
 #include "scene.hpp"
+#include "threadPool.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -119,8 +120,37 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
 }
 
+bool isPowerOfTwo(int n) { return (n > 0) && ((n & (n - 1)) == 0); }
+
 int main()
 {
+    unsigned int threadCount;
+
+    while(true) {
+        std::cout << "Enter amount of working threads as a power of 2 (max: " +
+                     std::to_string(std::thread::hardware_concurrency()) +
+                     "):\n";
+
+        std::cin >> threadCount;
+
+        if(threadCount < std::thread::hardware_concurrency() && isPowerOfTwo(threadCount)) break;
+
+        std::cout << "Error.\n\n";
+    }
+
+    unsigned int textureSideLength;
+
+    while(true) {
+        std::cout << "\nEnter side length of the rendered square texture (logical pixels).\n"
+                  << "Sets texture resolution (NxN) before sampling to the framebuffer: ";
+
+        std::cin >> textureSideLength;
+
+        if(isPowerOfTwo(textureSideLength)) break;
+
+        std::cout << "Error.\n";
+    }
+
     // Regular Scene
     // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 60.0f), 40.0f, Sphere1Mat));
     // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, 170.0f), 60.0f, Sphere2Mat));
@@ -264,11 +294,12 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    const int width  = 512; // keep it in powers of 2!
-    const int height = 512; // keep it in powers of 2!
+    const int width  = textureSideLength; // keep it in powers of 2!
+    const int height = textureSideLength; // keep it in powers of 2!
     unsigned char image[width*height*3];
 
     unsigned char *data = image;
+    ThreadPool threadPool(threadCount);
 
     // render loop
     // -----------
@@ -300,26 +331,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        for(int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++)
-            {
-                // Translate pixels to image plane coords (normalize each pixel)
-                float u = (j + 0.5) / width;
-                float v = (i + 0.5) / height;
-
-                // Translate image plane coords to world coords
-                float x = (u - 0.5) * width;
-                float y = (0.5 - v) * height;
-
-                Color color = scene->getPixelColor(x, y);
-                
-                int idx = (i * width + j) * 3;
-                image[idx] = (unsigned char) (color.r);
-                image[idx+1] = color.g;
-                image[idx+2] = color.b;
-                
-            }
-        }
+        rayTrace(scene, image, width, height, threadPool);
 
         if (data)
         {
