@@ -3,7 +3,7 @@ project(MultiThreadedRayTracer)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Werror")
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Werror -pthread -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 
 find_package(OpenGL REQUIRED)
@@ -21,6 +21,7 @@ include_directories(
 add_executable(Main
         src/simpleTexture.cpp
         src/scene.hpp
+        src/utils.hpp
         )
 
 target_link_libraries(Main

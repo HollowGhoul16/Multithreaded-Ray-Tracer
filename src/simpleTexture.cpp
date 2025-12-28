@@ -5,10 +5,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <limits>
 
 #include "scene.hpp"
 #include "threadPool.hpp"
+#include "utils.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -16,18 +16,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
-
-std::string readShaderFile(const std::string& path) {
-    std::ifstream shader;
-    std::string content;
-    std::string line;
-
-    shader.open(path);
-    while(std::getline(shader, line)) content += line + "\n";
-    shader.close();
-
-    return content;
-}
 
 std::string vertexShaderSourceString = readShaderFile("../src/source.vs");
 const char *vertexShaderSource = vertexShaderSourceString.c_str();
@@ -37,31 +25,32 @@ const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 
 
 // Constants for scene usage
-const Color white(255, 255, 255);
-const Color grey(128, 128, 128);
-const Color red(255, 0, 0);
-const Color green(0, 255, 0);
-const Color blue(0, 0, 255);
-const float ambCoeff = 0.3f;
-const float difCoeff = 0.4f;
-const float speCoeff = 0.3f;
-const float speExp = 100;
+constexpr Color white(255, 255, 255);
+constexpr Color grey(128, 128, 128);
+constexpr Color red(255, 0, 0);
+constexpr Color green(0, 255, 0);
+constexpr Color blue(0, 0, 255);
+constexpr float ambCoeff = 0.3f;
+constexpr float difCoeff = 0.4f;
+constexpr float speCoeff = 0.3f;
+constexpr float speExp = 100;
+constexpr bool isGlazed = true;
 
-// const Material Sphere1Mat(red, red, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-// const Material Sphere2Mat(green, green, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-// const Material Sphere3Mat(blue, blue, white, ambCoeff, difCoeff, speCoeff, speExp, false);
+// constexpr Material Sphere1Mat(red, red, white, ambCoeff, difCoeff, speCoeff, speExp, false);
+// constexpr Material Sphere2Mat(green, green, white, ambCoeff, difCoeff, speCoeff, speExp, false);
+// constexpr Material Sphere3Mat(blue, blue, white, ambCoeff, difCoeff, speCoeff, speExp, false);
 
 // Snowman constants (Current scene)
-const Color BodyColor(243, 243, 243);
-const Color FacePartColor(62, 62, 70); //35
-const Color NoseColor(255, 169, 77);
+constexpr Color BodyColor(243, 243, 243);
+constexpr Color ButtonColor(62, 62, 70);
+constexpr Color NoseColor(255, 169, 77);
 
-const Material Body(BodyColor, BodyColor, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-const Material FacePart(FacePartColor, FacePartColor, white, ambCoeff, difCoeff, speCoeff, speExp, true);
-const Material Nose(NoseColor, NoseColor, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-const Material PlaneMat(grey, grey, white, ambCoeff, difCoeff, speCoeff, speExp, true); // Glazed plane
+constexpr Material Body(BodyColor, BodyColor, white, ambCoeff, difCoeff, speCoeff, speExp, !isGlazed);
+constexpr Material Eye(ButtonColor, ButtonColor, white, ambCoeff, difCoeff, speCoeff, speExp, isGlazed);
+constexpr Material Nose(NoseColor, NoseColor, white, ambCoeff, difCoeff, speCoeff, speExp, !isGlazed);
+constexpr Material PlaneMat(grey, grey, white, ambCoeff, difCoeff, speCoeff, speExp, isGlazed); // Glazed plane
 
-const DirectionalLight light(Vec3(-1, -1, 1), 1.0f);
+const DirectionalLight light(Vec3(-1.0f, -1.0f, 1.0f), 1.0f);
 
 std::vector<Surface*> surfaces;
 
@@ -110,7 +99,6 @@ Camera* cameras[2] = {
 };
 #endif
 
-// Setup scene
 Scene* scene = nullptr;
 
 // From https://www.glfw.org/docs/3.3/input_guide.html
@@ -119,8 +107,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     // Toggles the camera type
     if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
 }
-
-bool isPowerOfTwo(int n) { return (n > 0) && ((n & (n - 1)) == 0); }
 
 int main()
 {
@@ -162,8 +148,8 @@ int main()
     surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, 160.0f), 30.0f, Body));
     surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, 160.0f), 20.0f, Body));
 
-    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, 141.5f), 2.5f, FacePart));
-    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, 141.5f), 2.5f, FacePart));
+    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, 141.5f), 2.5f, Eye));
+    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, 141.5f), 2.5f, Eye));
 
     surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, 141.5f), 3.0f, Nose));
 
@@ -296,10 +282,12 @@ int main()
     // Create the image (RGB Array) to be displayed
     const int width  = textureSideLength; // keep it in powers of 2!
     const int height = textureSideLength; // keep it in powers of 2!
-    unsigned char image[width*height*3];
+    unsigned char *image = new unsigned char[width * height * 3];
 
     unsigned char *data = image;
+
     ThreadPool threadPool(threadCount);
+    printFPS();
 
     // render loop
     // -----------
@@ -342,8 +330,11 @@ int main()
         {
             std::cout << "Failed to load texture" << std::endl;
         }
+
+        frameCount += 1; // For printing FPS
     }
 
+    frameCount = -1; // For ending FPS thread execution
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------

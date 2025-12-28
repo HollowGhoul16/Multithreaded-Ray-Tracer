@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -13,40 +14,40 @@ struct Vec3 {
 
     constexpr Vec3(const float& x, const float& y, const float& z) : x(x), y(y), z(z) {};
 
-    constexpr const float& operator[](const int i) const { 
+    const float& operator[](const int i) const { 
         return i == 0 ? x : (i == 1 ? y : z); 
     }
 
-    constexpr Vec3 operator*(const float scalar) const { 
+    Vec3 operator*(const float scalar) const { 
         return Vec3(x * scalar, y * scalar, z * scalar);       
     }
 
-    constexpr Vec3 operator+(const Vec3& otherVec) const { 
+    Vec3 operator+(const Vec3& otherVec) const { 
         return Vec3(x + otherVec.x, y + otherVec.y, z + otherVec.z); 
     }
 
-    constexpr Vec3 operator-(const Vec3& otherVec) const { 
+    Vec3 operator-(const Vec3& otherVec) const { 
         return Vec3(x - otherVec.x, y - otherVec.y, z - otherVec.z); 
     }
 
-    constexpr Vec3 operator-() const { 
+    Vec3 operator-() const { 
         return Vec3(-x, -y, -z);          
     }
 
-    constexpr float magnitude() const { 
+    float magnitude() const { 
         return std::sqrt(x * x + y * y + z * z); 
     }
 
-    constexpr Vec3 normalize() const { 
+    Vec3 normalize() const { 
         if(this->magnitude() == 0) return Vec3(0, 0, 0);
         return (*this) * (1.0 / this->magnitude()); 
     }
 
-    constexpr float dot(const Vec3& otherVec) const {
+    float dot(const Vec3& otherVec) const {
         return this->x * otherVec.x + this->y * otherVec.y + this->z * otherVec.z;
     }
 
-    constexpr Vec3 cross(const Vec3& otherVec) const {
+    Vec3 cross(const Vec3& otherVec) const {
         return Vec3((this->y * otherVec.z - this->z * otherVec.y), (this->z * otherVec.x- this->x * otherVec.z), (this->x * otherVec.y - this->y * otherVec.x));
     }
 };
@@ -60,7 +61,7 @@ struct Matrix3 {
 
     constexpr Matrix3(const Vec3& u, const Vec3& v, const Vec3& w) : u(u), v(v), w(w) {};
 
-    constexpr Vec3 matvec(const Vec3& vec) const {
+    Vec3 matvec(const Vec3& vec) const {
         Vec3 c1 = u * vec.x;
         Vec3 c2 = v * vec.y;
         Vec3 c3 = w * vec.z;
@@ -68,12 +69,12 @@ struct Matrix3 {
         return Vec3(c1.x + c2.x + c3.x, c1.y + c2.y + c3.y, c1.z + c2.z + c3.z);
     }
 
-    constexpr Matrix3 matmat(const Matrix3& otherM) const {
+    Matrix3 matmat(const Matrix3& otherM) const {
         return Matrix3(matvec(otherM.u), matvec(otherM.v), matvec(otherM.w));
     }
 
     // Prevent floating point errors with the rotations for camera
-    constexpr void orthoNormalize() {
+    void orthoNormalize() {
         u = u.normalize();
         v = v - (u * v.dot(u));
         v = v.normalize();
@@ -100,23 +101,23 @@ struct Color {
 
     constexpr Color(const float& r = 0, const float& g = 0, const float& b = 0) : r(r), g(g), b(b) {};
 
-    constexpr Color operator*(const float& coeff) const { 
-        return Color(r * coeff, g * coeff, b * coeff);       
+    Color operator*(const float& coeff) const {
+        return Color(r * coeff, g * coeff, b * coeff);
     }
 
-    constexpr Color operator/(const float& coeff) const { 
-        return Color(r / coeff, g / coeff, b / coeff);       
+    Color operator/(const float& coeff) const {
+        return Color(r / coeff, g / coeff, b / coeff);
     }
 
-    constexpr Color operator*(const Color& otherColor) const { 
-        return Color(r * otherColor.r, g * otherColor.g, b * otherColor.b);       
+    Color operator*(const Color& otherColor) const {
+        return Color(r * otherColor.r, g * otherColor.g, b * otherColor.b);
     }
 
-    constexpr Color operator+(const Color& otherColor) const { 
-        return Color(r + otherColor.r, g + otherColor.g, b + otherColor.b);       
+    Color operator+(const Color& otherColor) const {
+        return Color(r + otherColor.r, g + otherColor.g, b + otherColor.b);
     }
 
-    constexpr void clamp() {
+    void clamp() {
         r = std::min(r, 255.0f);
         g = std::min(g, 255.0f);
         b = std::min(b, 255.0f);
@@ -220,7 +221,7 @@ struct Camera {
     Vec3 origin;
     Matrix3 basis;
 
-    constexpr Camera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation) : origin(origin) {
+    Camera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation) : origin(origin) {
         basis.w = ((lookAt - origin).normalize());
         basis.u = (basis.w.cross(orientation).normalize());
         basis.v = (-(basis.u.cross(basis.w)));
@@ -258,7 +259,7 @@ struct Camera {
 };
 
 struct OrthographicCamera : Camera {
-    constexpr OrthographicCamera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation) : 
+    OrthographicCamera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation) : 
     Camera(origin, lookAt, orientation) {};
 
     Ray getRay(const float x, const float y) const override {
@@ -269,7 +270,7 @@ struct OrthographicCamera : Camera {
 struct PerspectiveCamera : Camera {
     float distToImage; // Determines FOV
 
-    constexpr PerspectiveCamera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation, const float d) : 
+    PerspectiveCamera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation, const float d) : 
     Camera(origin, lookAt, orientation), distToImage(d) {};
 
     Ray getRay(const float x, const float y) const override {
@@ -281,7 +282,7 @@ struct DirectionalLight {
     Vec3 direction;
     float intensity;
 
-    constexpr DirectionalLight(const Vec3& d, const float& i) : direction(d.normalize()), intensity(i) {};
+    DirectionalLight(const Vec3& d, const float& i) : direction(d.normalize()), intensity(i) {};
 };
 
 struct Scene {
@@ -317,7 +318,7 @@ struct Scene {
             }
         }
 
-        if(!closestSurface) return color; // If we did not hit return the black pixel
+        if(!closestSurface) return color; // If we did not hit return a black pixel
 
         Vec3 pointHit = cameraRay.parametrize(tClosest);
         Vec3 surfaceNormal = closestSurface->normal(pointHit);
@@ -326,7 +327,7 @@ struct Scene {
 
         color = surfaceMat.getColor(cameraRay, surfaceNormal, light.direction, light.intensity, shadow);
 
-        if(!surfaceMat.glazed or recurse <= 0) return color;
+        if(!surfaceMat.glazed || recurse <= 0) return color;
 
         Vec3 reflectionDirection = cameraRay.direction - (surfaceNormal * surfaceNormal.dot(cameraRay.direction) * 2);
         Ray reflectedRay(pointHit + surfaceNormal * 0.001f, reflectionDirection); // Adds a little buffer space so we do not hit the same point again
@@ -352,7 +353,7 @@ struct Scene {
             }
         }
 
-        if(!closestSurface) return color; // If we did not hit return the black pixel
+        if(!closestSurface) return color; // If we did not hit return a black pixel
 
         Vec3 pointHit = ray.parametrize(tClosest);
         Vec3 surfaceNormal = closestSurface->normal(pointHit);
@@ -361,7 +362,7 @@ struct Scene {
 
         color = surfaceMat.getColor(ray, surfaceNormal, light.direction, light.intensity, shadow);
 
-        if(!surfaceMat.glazed or recurse <= 0) return color;
+        if(!surfaceMat.glazed || recurse <= 0) return color;
 
         Vec3 rayDirNorm = ray.direction.normalize();
         Vec3 reflectionDirection = rayDirNorm - (surfaceNormal * surfaceNormal.dot(rayDirNorm) * 2);
