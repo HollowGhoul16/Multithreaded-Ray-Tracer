@@ -4,10 +4,10 @@ ThreadPool::ThreadPool(const int& threadCount)
                       : threadCount_(threadCount) 
 {
     for(size_t i = 0; i < threadCount_; ++i) threads_.emplace_back(std::thread(&ThreadPool::work, this));
-};
+}
 
 ThreadPool::~ThreadPool()
-{ 
+{
     active_ = false;
     signal_.notify_all();
     for(std::thread &thread : threads_) thread.join(); 
@@ -21,7 +21,7 @@ inline void ThreadPool::enqueueJob(std::packaged_task<void()>&& job)
 }
 
 inline void ThreadPool::waitForThreads()
-{ 
+{
     std::unique_lock<std::mutex> lock(mutex_);
     signal_.wait(lock, [this] { return jobQueue_.empty() && workingThreadCount_ == 0; });
 }
@@ -63,7 +63,7 @@ void rayTraceArea(Scene* scene, unsigned char image[], const int width, const in
 
 			// Translate image plane coords to world coords
 			float x = (u - 0.5) * width;
-			float y = (0.5 - v) * height;
+			float y = (v - 0.5) * height;
 
 			Color color = scene->getPixelColor(x, y);
 			

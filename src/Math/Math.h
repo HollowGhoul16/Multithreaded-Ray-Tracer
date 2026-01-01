@@ -9,9 +9,11 @@ struct Vec3 {
 
     constexpr Vec3(const float& x, const float& y, const float& z);
 
-    const float& operator[](const int i) const;
+    const float& operator[](const int& i) const;
 
-    Vec3 operator*(const float scalar) const;
+    Vec3 operator*(const float& scalar) const;
+
+    Vec3 operator/(const float& scalar) const;
 
     Vec3 operator+(const Vec3& otherVec) const;
 

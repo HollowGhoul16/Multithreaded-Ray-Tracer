@@ -12,6 +12,11 @@ constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 800;
 
 
+// Camera Constants
+
+constexpr float SHIFT = 4.0f;
+constexpr float THETA = 3 * (M_PI / 180); // Converts degrees to radians for the cmath functions
+
 // Color Constants
 
 constexpr Color WHITE     (255, 255, 255);
@@ -116,4 +121,4 @@ constexpr Material PLANE_MAT(
 
 // Light Constants
 
-const DirectionalLight DIR_LIGHT(Vec3(-1.0f, -1.0f, 1.0f), 1.0f);
+const DirectionalLight DIR_LIGHT(Vec3(1.0f, -1.0f, -1.0f), 1.0f);

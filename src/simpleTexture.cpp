@@ -26,43 +26,43 @@ const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 #if SCENE == 1
 // In front and center
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 50, -100), Vec3(0, 20, 1), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 50, -100), Vec3(0, 20, 1), Vec3(0, 1, 0), 270.0)
+    new OrthographicCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0)),
+    new PerspectiveCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0), 270.0)
 };
 
 #elif SCENE == 2
 // On top looking down
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 200, 160), Vec3(0, 0, 160), Vec3(0, 0, 1)),
-    new PerspectiveCamera(Vec3(0, 200, 160), Vec3(0, 0, 160), Vec3(0, 0, 1), 270.0)
+    new OrthographicCamera(Vec3(0, 200, -160), Vec3(0, 0, -160), Vec3(0, 0, 1)),
+    new PerspectiveCamera(Vec3(0, 200, -160), Vec3(0, 0, -160), Vec3(0, 0, 1), 270.0)
 };
 
 #elif SCENE == 3
 // On left of scene looking center
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(200, 80, 160), Vec3(0, 10, 160), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(200, 80, 160), Vec3(0, 10, 160), Vec3(0, 1, 0), 270.0)
+    new OrthographicCamera(Vec3(200, 80, -160), Vec3(0, 10, -160), Vec3(0, 1, 0)),
+    new PerspectiveCamera(Vec3(200, 80, -160), Vec3(0, 10, -160), Vec3(0, 1, 0), 270.0)
 };
 
 #elif SCENE == 4
 // Back of scene looking center
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 80, 350), Vec3(0, 10, 0), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 80, 350), Vec3(0, 10, 0), Vec3(0, 1, 0), 270.0)
+    new OrthographicCamera(Vec3(0, 80, -350), Vec3(0, 10, 0), Vec3(0, 1, 0)),
+    new PerspectiveCamera(Vec3(0, 80, -350), Vec3(0, 10, 0), Vec3(0, 1, 0), 270.0)
 };
 
 #elif SCENE == 5
 // Camera from the left angled right
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(120, 20, 40), Vec3(0, 21, 100), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(120, 20, 40), Vec3(0, 21, 100), Vec3(0, 1, 0), 270.0)
+    new OrthographicCamera(Vec3(120, 20, -40), Vec3(0, 21, -100), Vec3(0, 1, 0)),
+    new PerspectiveCamera(Vec3(120, 20, -40), Vec3(0, 21, -100), Vec3(0, 1, 0), 270.0)
 };
 
 #elif SCENE == 6
 // Camera from the back top angled down
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 150, 350), Vec3(0, 0, 100), Vec3(0, 0, -1)),
-    new PerspectiveCamera(Vec3(0, 150, 350), Vec3(0, 0, 100), Vec3(0, 0, -1), 270.0)
+    new OrthographicCamera(Vec3(0, 150, -350), Vec3(0, 0, -100), Vec3(0, 0, -1)),
+    new PerspectiveCamera(Vec3(0, 150, -350), Vec3(0, 0, -100), Vec3(0, 0, -1), 270.0)
 };
 #endif
 
@@ -107,20 +107,20 @@ int main()
     std::vector<Surface*> surfaces;
 
     // Regular Scene
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 60.0f), 40.0f, RED_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, 170.0f), 60.0f, GREEN_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 10.0f), 10.0f, BLUE_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -60.0f), 40.0f, RED_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, -170.0f), 60.0f, GREEN_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, -10.0f), 10.0f, BLUE_SPHERE_MAT));
     // surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
     // Snowman scene
-    surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 160.0f), 40.0f, SNOWMAN_BODY_MAT));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, 160.0f), 30.0f, SNOWMAN_BODY_MAT));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, 160.0f), 20.0f, SNOWMAN_BODY_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, -160.0f), 30.0f, SNOWMAN_BODY_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, -160.0f), 20.0f, SNOWMAN_BODY_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, 141.5f), 2.5f, SNOWMAN_EYE_MAT));
-    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, 141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, 141.5f), 3.0f, SNOWMAN_NOSE_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, -141.5f), 3.0f, SNOWMAN_NOSE_MAT));
 
     surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
@@ -329,8 +329,6 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    const float shift = 4.0f;
-    const float theta = 5 * (M_PI / 180); // Converts degrees to radians for the cmath functions
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
@@ -339,53 +337,53 @@ void processInput(GLFWwindow *window)
     // Shifts
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.w * shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.w * SHIFT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.w * -shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.w * -SHIFT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.u * -shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.u * -SHIFT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.u * shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.u * SHIFT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.v * -shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.v * SHIFT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.v * shift);
+        for(Camera* camera : cameras) camera->updateOrigin(camera->basis.v * -SHIFT);
     }
 
     // Rotations (have floating point errors and end up wrong, but can manually rotate back)
 
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(theta);
+        for(Camera* camera : cameras) camera->yaw(THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(-theta);
+        for(Camera* camera : cameras) camera->yaw(-THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->pitch(theta);
+        for(Camera* camera : cameras) camera->pitch(THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->pitch(-theta);
+        for(Camera* camera : cameras) camera->pitch(-THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->roll(-theta);
+        for(Camera* camera : cameras) camera->roll(-THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->roll(theta);
+        for(Camera* camera : cameras) camera->roll(THETA);
     }
 }
 
