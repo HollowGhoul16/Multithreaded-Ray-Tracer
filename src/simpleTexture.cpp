@@ -4,55 +4,22 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <fstream>
+#include <future>
 
-#include "scene.hpp"
-#include "threadPool.hpp"
-#include "utils.hpp"
+#include "Renderer/Scene.h"
+#include "Core/ThreadPool.h"
+#include "Core/Utils.hpp"
+
+#include "SceneConstants.cpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 800;
-
-std::string vertexShaderSourceString = readShaderFile("../src/source.vs");
+std::string vertexShaderSourceString = readShaderFile("../src/Shaders/source.vs");
 const char *vertexShaderSource = vertexShaderSourceString.c_str();
 
-std::string fragmentShaderSourceString = readShaderFile("../src/source.fs");
+std::string fragmentShaderSourceString = readShaderFile("../src/Shaders/source.fs");
 const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
-
-
-// Constants for scene usage
-constexpr Color white(255, 255, 255);
-constexpr Color grey(128, 128, 128);
-constexpr Color red(255, 0, 0);
-constexpr Color green(0, 255, 0);
-constexpr Color blue(0, 0, 255);
-constexpr float ambCoeff = 0.3f;
-constexpr float difCoeff = 0.4f;
-constexpr float speCoeff = 0.3f;
-constexpr float speExp = 100;
-constexpr bool isGlazed = true;
-
-// constexpr Material Sphere1Mat(red, red, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-// constexpr Material Sphere2Mat(green, green, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-// constexpr Material Sphere3Mat(blue, blue, white, ambCoeff, difCoeff, speCoeff, speExp, false);
-
-// Snowman constants (Current scene)
-constexpr Color BodyColor(243, 243, 243);
-constexpr Color ButtonColor(62, 62, 70);
-constexpr Color NoseColor(255, 169, 77);
-
-constexpr Material Body(BodyColor, BodyColor, white, ambCoeff, difCoeff, speCoeff, speExp, !isGlazed);
-constexpr Material Eye(ButtonColor, ButtonColor, white, ambCoeff, difCoeff, speCoeff, speExp, isGlazed);
-constexpr Material Nose(NoseColor, NoseColor, white, ambCoeff, difCoeff, speCoeff, speExp, !isGlazed);
-constexpr Material PlaneMat(grey, grey, white, ambCoeff, difCoeff, speCoeff, speExp, isGlazed); // Glazed plane
-
-const DirectionalLight light(Vec3(-1.0f, -1.0f, 1.0f), 1.0f);
-
-std::vector<Surface*> surfaces;
 
 #define SCENE 1
 
@@ -137,25 +104,27 @@ int main()
         std::cout << "Error.\n";
     }
 
+    std::vector<Surface*> surfaces;
+
     // Regular Scene
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 60.0f), 40.0f, Sphere1Mat));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, 170.0f), 60.0f, Sphere2Mat));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 10.0f), 10.0f, Sphere3Mat));
-    // surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PlaneMat));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 60.0f), 40.0f, RED_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, 170.0f), 60.0f, GREEN_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 10.0f), 10.0f, BLUE_SPHERE_MAT));
+    // surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
     // Snowman scene
-    surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 160.0f), 40.0f, Body));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, 160.0f), 30.0f, Body));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, 160.0f), 20.0f, Body));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, 160.0f), 40.0f, SNOWMAN_BODY_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, 160.0f), 30.0f, SNOWMAN_BODY_MAT));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, 160.0f), 20.0f, SNOWMAN_BODY_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, 141.5f), 2.5f, Eye));
-    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, 141.5f), 2.5f, Eye));
+    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, 141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, 141.5f), 2.5f, SNOWMAN_EYE_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, 141.5f), 3.0f, Nose));
+    surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, 141.5f), 3.0f, SNOWMAN_NOSE_MAT));
 
-    surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PlaneMat));
+    surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
-    scene = new Scene(light, surfaces, cameras);
+    scene = new Scene(DIR_LIGHT, surfaces, cameras);
 
     // glfw: initialize and configure
     // ------------------------------
@@ -284,10 +253,11 @@ int main()
     const int height = textureSideLength; // keep it in powers of 2!
     unsigned char *image = new unsigned char[width * height * 3];
 
-    unsigned char *data = image;
-
     ThreadPool threadPool(threadCount);
-    printFPS();
+
+    std::promise<bool> promiseFPS;
+    std::future<bool> signalCompleteFPS = promiseFPS.get_future();
+    printFPS(std::move(promiseFPS));
 
     // render loop
     // -----------
@@ -321,9 +291,9 @@ int main()
 
         rayTrace(scene, image, width, height, threadPool);
 
-        if (data)
+        if (image)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else
@@ -331,10 +301,11 @@ int main()
             std::cout << "Failed to load texture" << std::endl;
         }
 
-        frameCount += 1; // For printing FPS
+        currentFrameCount += 1; // For calculating FPS
     }
 
-    frameCount = -1; // For ending FPS thread execution
+    continueFPS = false;; // For ending FPS thread execution
+    signalCompleteFPS.get(); // Wait until FPS thread is done executing
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
@@ -347,7 +318,9 @@ int main()
     // ------------------------------------------------------------------
     glfwTerminate();
 
+    delete[] image;
     delete scene;
+
     return 0;
 }
 
@@ -356,8 +329,8 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    constexpr float shift = 4.0f;
-    constexpr float theta = 5 * (M_PI / 180); // Converts degrees to radians for the cmath functions
+    const float shift = 4.0f;
+    const float theta = 5 * (M_PI / 180); // Converts degrees to radians for the cmath functions
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);

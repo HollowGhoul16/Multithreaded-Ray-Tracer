@@ -13,6 +13,7 @@ find_package(PkgConfig REQUIRED)
 find_package(GLEW REQUIRED)
 
 include_directories(
+    ${PROJECT_SOURCE_DIR}/src
     ${OPENGL_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
@@ -20,8 +21,8 @@ include_directories(
 
 add_executable(Main
         src/simpleTexture.cpp
-        src/scene.hpp
-        src/utils.hpp
+        src/SceneConstants.cpp
+        src/Shading/Lights.cpp
         )
 
 target_link_libraries(Main
