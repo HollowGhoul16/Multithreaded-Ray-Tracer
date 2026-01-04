@@ -15,28 +15,34 @@ inline void Camera::updateOrigin(const Vec3& shift)
     origin = origin + shift;
 }
 
-inline void Camera::yaw(const float& theta)
-{
-    Matrix3 rotation(Vec3(std::cos(theta), 0, -std::sin(theta)), Vec3(0, 1, 0), Vec3(std::sin(theta), 0, std::cos(theta)));
-    Matrix3 newBasis = basis.matmat(rotation);
-    newBasis.orthoNormalize();
-    basis = newBasis;
-}
-
 inline void Camera::pitch(const float& theta)
 {
-    Matrix3 rotation(Vec3(1, 0, 0), Vec3(0, std::cos(theta), std::sin(theta)), Vec3(0, -std::sin(theta), std::cos(theta)));
-    Matrix3 newBasis = basis.matmat(rotation);
-    newBasis.orthoNormalize();
-    basis = newBasis;
+    Matrix3 rotation(Vec3(1, 0, 0),
+                     Vec3(0, std::cos(theta), -std::sin(theta)),
+                     Vec3(0, std::sin(theta), std::cos(theta)));
+
+    basis = basis.matmat(rotation);
+    basis.orthoNormalize();
+}
+
+inline void Camera::yaw(const float& theta)
+{
+    Matrix3 rotation(Vec3(std::cos(theta), 0, std::sin(theta)),
+                     Vec3(0, 1, 0),
+                     Vec3(-std::sin(theta), 0, std::cos(theta)));
+
+    basis = rotation.matmat(basis);
+    basis.orthoNormalize();
 }
 
 inline void Camera::roll(const float& theta)
 {
-    Matrix3 rotation(Vec3(std::cos(theta), std::sin(theta), 0), Vec3(-std::sin(theta), std::cos(theta), 0), Vec3(0, 0, 1));
-    Matrix3 newBasis = basis.matmat(rotation);
-    newBasis.orthoNormalize();
-    basis = newBasis;
+    Matrix3 rotation(Vec3(std::cos(theta), std::sin(theta), 0),
+                     Vec3(-std::sin(theta), std::cos(theta), 0),
+                     Vec3(0, 0, 1));
+
+    basis = rotation.matmat(basis);
+    basis.orthoNormalize();
 }
 
 // OrthographicCamera struct

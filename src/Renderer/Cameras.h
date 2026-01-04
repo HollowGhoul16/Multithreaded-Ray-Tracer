@@ -4,7 +4,7 @@
 
 struct Camera {
     Vec3 origin;
-    Matrix3 basis; // w = lookAt, u = right, v = up (vectors)
+    Matrix3 basis; // u = right, v = up, w = lookAt (vectors)
 
     Camera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation);
 
@@ -14,9 +14,9 @@ struct Camera {
 
     void updateOrigin(const Vec3& shift);
 
-    void yaw(const float& theta);
-
     void pitch(const float& theta);
+
+    void yaw(const float& theta);
 
     void roll(const float& theta);
 };

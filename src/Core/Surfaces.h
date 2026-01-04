@@ -7,9 +7,11 @@ struct Surface {
     Material material;
 
     constexpr Surface(const Material& m);
+
     virtual ~Surface() = default;
 
     virtual std::pair<bool, float> intersection(const Ray& ray) const = 0;
+
     virtual Vec3 normal(const Vec3& point) const = 0;
 };
 

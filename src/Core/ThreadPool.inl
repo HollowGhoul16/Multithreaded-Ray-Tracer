@@ -66,7 +66,7 @@ void rayTraceArea(Scene* scene, unsigned char image[], const int width, const in
 			float y = (v - 0.5) * height;
 
 			Color color = scene->getPixelColor(x, y);
-			
+
 			int idx = (i * width + j) * 3;
 			image[idx]   = static_cast<unsigned char>(color.r);
 			image[idx+1] = static_cast<unsigned char>(color.g);

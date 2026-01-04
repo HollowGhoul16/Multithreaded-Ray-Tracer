@@ -4,10 +4,11 @@
 #include "Lights.h"
 #include <algorithm>
 
+// Linear between [0, 1]
 struct Color {
     float r, g, b;
 
-    constexpr Color(const float& r = 0, const float& g = 0, const float& b = 0);
+    Color(const float& r = 0, const float& g = 0, const float& b = 0);
 
     Color operator*(const float& coeff) const;
 
@@ -17,17 +18,19 @@ struct Color {
 
     Color operator+(const Color& otherColor) const;
 
+    void toSRGB();
+
     void clamp();
 };
 
-// Sum of the coefficients should between 0 and 1 inclusively
+// Sum of the coefficients should be between [0, 1]
 struct Material {
     Color ambientColor, diffuseColor, specularColor;
     float ambientCoeff, diffuseCoeff, specularCoeff;
     float specularExp;
     bool glazed;
 
-    constexpr Material(
+    Material(
         const Color& ac, 
         const Color& dc, 
         const Color& sc, 

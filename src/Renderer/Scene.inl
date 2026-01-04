@@ -39,13 +39,18 @@ inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) c
 
     color = surfaceMat.getColor(cameraRay, surfaceNormal, light, shadow);
 
-    if(!surfaceMat.glazed || recurse <= 0) return color;
+    if(!surfaceMat.glazed || recurse <= 0) {
+        color.clamp();
+        color.toSRGB();
+        return color;
+    }
 
     Vec3 reflectionDirection = cameraRay.direction - (surfaceNormal * surfaceNormal.dot(cameraRay.direction) * 2);
     Ray reflectedRay(pointHit + surfaceNormal * 0.001f, reflectionDirection); // Adds a little buffer space so we do not hit the same point again
 
-    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor / 255.0f);
+    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor);
     color.clamp();
+    color.toSRGB();
 
     return color;
 }
@@ -81,7 +86,7 @@ inline Color Scene::reflectionColor(const Ray& ray, int& recurse) const
     Vec3 reflectionDirection = rayDirNorm - (surfaceNormal * surfaceNormal.dot(rayDirNorm) * 2);
     Ray reflectedRay(pointHit + surfaceNormal * 0.001f, reflectionDirection);
 
-    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor / 255.0f);
+    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor);
 
     return color;
 }

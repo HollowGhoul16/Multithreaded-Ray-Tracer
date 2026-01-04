@@ -22,7 +22,6 @@ include_directories(
 add_executable(Main
         src/simpleTexture.cpp
         src/SceneConstants.cpp
-        src/Shading/Lights.cpp
         )
 
 target_link_libraries(Main

@@ -362,20 +362,20 @@ void processInput(GLFWwindow *window)
 
     // Rotations (have floating point errors and end up wrong, but can manually rotate back)
 
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(THETA);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(-THETA);
-    }
-
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
         for(Camera* camera : cameras) camera->pitch(THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
         for(Camera* camera : cameras) camera->pitch(-THETA);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        for(Camera* camera : cameras) camera->yaw(THETA);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        for(Camera* camera : cameras) camera->yaw(-THETA);
     }
 
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
