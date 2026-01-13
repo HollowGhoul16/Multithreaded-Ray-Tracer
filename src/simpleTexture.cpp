@@ -124,7 +124,7 @@ int main()
 
     surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
-    scene = new Scene(DIR_LIGHT, surfaces, cameras);
+    scene = new Scene(HORIZON_DIR_LIGHT, surfaces, cameras);
 
     // glfw: initialize and configure
     // ------------------------------

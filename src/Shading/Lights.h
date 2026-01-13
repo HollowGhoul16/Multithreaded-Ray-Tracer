@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Math/Math.h"
+#include "Color.h"
 
 struct Light {
+    Color color;
     float intensity;
 
-    constexpr Light(const float& i);
+    Light(const Color& c, const float& i);
 
     virtual ~Light() = default;
 
@@ -15,7 +17,7 @@ struct Light {
 struct DirectionalLight : Light {
     Vec3 direction;
 
-    DirectionalLight(const Vec3& d, const float& i);
+    DirectionalLight(const Color& c, const Vec3& d, const float& i);
 
     float calculateIntensity(const Vec3& point) const override;
 };
@@ -23,7 +25,7 @@ struct DirectionalLight : Light {
 struct PointLight : Light {
     Vec3 origin;
 
-    constexpr PointLight(const Vec3& o, const float& i);
+    PointLight(const Color& c, const Vec3& o, const float& i);
 
     float calculateIntensity(const Vec3& point) const override;
 };

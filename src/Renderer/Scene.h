@@ -20,9 +20,11 @@ struct Scene {
 
     ~Scene();
 
-    Color getPixelColor(const float& x, const float& y, int recurse = 1) const;
+    Color getPixelColor(const float& x, const float& y, int recurse = 2) const;
 
-    Color reflectionColor(const Ray& ray, int& recurse) const;
+    Color rayTrace(const Ray& ray, int& recurse) const;
+
+    Color skyModel(const Ray& ray) const;
 
     bool castShadow(const Vec3& pointHit, const Vec3& surfaceNormal) const;
 

@@ -14,8 +14,8 @@ constexpr unsigned int SCR_HEIGHT = 800;
 
 // Camera Constants
 
-constexpr float SHIFT = 4.0f;
-constexpr float THETA = 3 * (M_PI / 180); // Converts degrees to radians for the cmath functions
+constexpr float SHIFT = 2.5f;
+constexpr float THETA = 2.5 * (M_PI / 180); // Converts degrees to radians for the cmath functions
 
 // Color Constants
 
@@ -24,7 +24,7 @@ const Color GREY      (128, 128, 128);
 const Color RED       (255, 0, 0);
 const Color GREEN     (0, 255, 0);
 const Color BLUE      (0, 0, 255);
-
+const Color SUN_COLOR (255, 150, 100);
 
 // Material Constants
 
@@ -121,4 +121,5 @@ const Material PLANE_MAT(
 
 // Light Constants
 
-const DirectionalLight DIR_LIGHT(Vec3(1.0f, -1.0f, -1.0f), 1.0f);
+const DirectionalLight DIR_LIGHT         (SUN_COLOR, Vec3(1.0f, -1.0f, -1.0f), 1.0f);  // Normal sun
+const DirectionalLight HORIZON_DIR_LIGHT (SUN_COLOR, Vec3(0.0f, -1.0f, -5.0f), 1.0f);  // Sunset (on horizon)

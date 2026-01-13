@@ -1,27 +1,8 @@
 #pragma once
 
+#include "Color.h"
 #include "Math/Math.h"
 #include "Lights.h"
-#include <algorithm>
-
-// Linear between [0, 1]
-struct Color {
-    float r, g, b;
-
-    Color(const float& r = 0, const float& g = 0, const float& b = 0);
-
-    Color operator*(const float& coeff) const;
-
-    Color operator/(const float& coeff) const;
-
-    Color operator*(const Color& otherColor) const;
-
-    Color operator+(const Color& otherColor) const;
-
-    void toSRGB();
-
-    void clamp();
-};
 
 // Sum of the coefficients should be between [0, 1]
 struct Material {

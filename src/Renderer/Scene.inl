@@ -13,52 +13,19 @@ inline Scene::~Scene()
     for (Camera* camera : cameras) delete camera;
 }
 
-inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const 
+inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const
 {
-    Color color; // Gets initialized to black (0, 0, 0)
+    Color color;
     Ray cameraRay = currentCamera->getRay(x, y);
-
-    float tClosest = std::numeric_limits<float>::max(); 
-    const Surface* closestSurface = nullptr;
-
-    for(const Surface* surface : surfaces) {
-        std::pair<bool, float> intersection = surface->intersection(cameraRay);
-
-        if(intersection.first && intersection.second < tClosest) {
-            tClosest = intersection.second;
-            closestSurface = surface;
-        }
-    }
-
-    if(!closestSurface) return color; // If we did not hit return a black pixel
-
-    Vec3 pointHit = cameraRay.parametrize(tClosest);
-    Vec3 surfaceNormal = closestSurface->normal(pointHit);
-    Material surfaceMat = closestSurface->material;
-    bool shadow = castShadow(pointHit, surfaceNormal);
-
-    color = surfaceMat.getColor(cameraRay, surfaceNormal, light, shadow);
-
-    if(!surfaceMat.glazed || recurse <= 0) {
-        color.clamp();
-        color.toSRGB();
-        return color;
-    }
-
-    Vec3 reflectionDirection = cameraRay.direction - (surfaceNormal * surfaceNormal.dot(cameraRay.direction) * 2);
-    Ray reflectedRay(pointHit + surfaceNormal * 0.001f, reflectionDirection); // Adds a little buffer space so we do not hit the same point again
-
-    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor);
+    color = rayTrace(cameraRay, recurse);
     color.clamp();
-    color.toSRGB();
+    color.toSRGB(); // Gamma correction
 
     return color;
 }
 
-inline Color Scene::reflectionColor(const Ray& ray, int& recurse) const
+inline Color Scene::rayTrace(const Ray& ray, int& recurse) const
 {
-    Color color;
-
     float tClosest = std::numeric_limits<float>::max(); 
     const Surface* closestSurface = nullptr;
 
@@ -71,14 +38,14 @@ inline Color Scene::reflectionColor(const Ray& ray, int& recurse) const
         }
     }
 
-    if(!closestSurface) return color; // If we did not hit return a black pixel
+    if(!closestSurface) return skyModel(ray);
 
     Vec3 pointHit = ray.parametrize(tClosest);
     Vec3 surfaceNormal = closestSurface->normal(pointHit);
     const Material surfaceMat = closestSurface->material;
     bool shadow = castShadow(pointHit, surfaceNormal);
 
-    color = surfaceMat.getColor(ray, surfaceNormal, light, shadow);
+    Color color = surfaceMat.getColor(ray, surfaceNormal, light, shadow);
 
     if(!surfaceMat.glazed || recurse <= 0) return color;
 
@@ -86,9 +53,36 @@ inline Color Scene::reflectionColor(const Ray& ray, int& recurse) const
     Vec3 reflectionDirection = rayDirNorm - (surfaceNormal * surfaceNormal.dot(rayDirNorm) * 2);
     Ray reflectedRay(pointHit + surfaceNormal * 0.001f, reflectionDirection);
 
-    color = color + (reflectionColor(reflectedRay, --recurse) * surfaceMat.specularCoeff * surfaceMat.specularColor);
+    color = color + (rayTrace(reflectedRay,  --recurse) * surfaceMat.specularCoeff);
 
     return color;
+}
+
+inline Color Scene::skyModel(const Ray& ray) const
+{
+    Color skyColor(100.0f, 104.0f, 255.0f);
+
+    Color horizonColor(255.0f, 120.0f, 60.0f);
+
+    Color sunColor = light.color;
+    const float SUN_SIZE_SCALAR = 1.0f;
+
+    Vec3 rayDir = ray.direction.normalize();
+    Vec3 sunDir = -light.direction.normalize();
+    float cosTheta = std::min(std::max(rayDir.dot(sunDir), 0.0f), 1.0f);
+
+    float horizonScalar = -1 * (Vec3(0.0f, 1.0f, 0.0f).dot(rayDir) - 1);
+    horizonScalar = std::pow(horizonScalar, 4.0f);
+
+    float skyGradient = 1 + cosTheta * cosTheta;
+    Color sky = (skyColor * skyGradient) * (1 - horizonScalar) + horizonColor * horizonScalar;
+
+    float sunScalar = 0.05f + std::pow(cosTheta, 256.0f / SUN_SIZE_SCALAR);
+    Color sun = sunColor * sunScalar * 2.0f;
+
+    Color result = sky * (1 - sunScalar) + sun;
+
+    return result;
 }
 
 inline bool Scene::castShadow(const Vec3& pointHit, const Vec3& surfaceNormal) const
