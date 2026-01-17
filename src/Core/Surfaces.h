@@ -12,7 +12,7 @@ struct Surface {
 
     virtual std::pair<bool, float> intersection(const Ray& ray) const = 0;
 
-    virtual Vec3 normal(const Vec3& point) const = 0;
+    virtual Vec3 normal(const Ray& ray, const Vec3& point) const = 0;
 };
 
 struct Sphere : Surface {
@@ -23,7 +23,7 @@ struct Sphere : Surface {
 
     std::pair<bool, float> intersection(const Ray& ray) const override;
 
-    Vec3 normal(const Vec3& point) const override;
+    Vec3 normal(const Ray& ray, const Vec3& point) const override;
 };
 
 struct Plane : Surface {
@@ -31,9 +31,25 @@ struct Plane : Surface {
 
     constexpr Plane(const Vec3& p, const Vec3& n, const Material& m);
 
+    virtual std::pair<bool, float> intersection(const Ray& ray) const override;
+
+    Vec3 normal(const Ray& ray, const Vec3& point) const override;
+};
+
+struct Rectangle : Plane {
+    Vec3 corner, edge1, edge2;
+
+    constexpr Rectangle(
+        const Vec3& c,
+        const Vec3& n,
+        const Vec3& e1,
+        const Vec3& e2,
+        const Material& m
+    );
+
     std::pair<bool, float> intersection(const Ray& ray) const override;
 
-    Vec3 normal(const Vec3& point) const override;
+    Vec3 normal(const Ray& ray, const Vec3& point) const override;
 };
 
 #include "Surfaces.inl"

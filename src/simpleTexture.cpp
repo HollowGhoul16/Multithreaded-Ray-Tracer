@@ -21,50 +21,12 @@ const char *vertexShaderSource = vertexShaderSourceString.c_str();
 std::string fragmentShaderSourceString = readShaderFile("../src/Shaders/source.fs");
 const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 
-#define SCENE 1
 
-#if SCENE == 1
 // In front and center
 Camera* cameras[2] = {
     new OrthographicCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0)),
     new PerspectiveCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0), 270.0)
 };
-
-#elif SCENE == 2
-// On top looking down
-Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 200, -160), Vec3(0, 0, -160), Vec3(0, 0, 1)),
-    new PerspectiveCamera(Vec3(0, 200, -160), Vec3(0, 0, -160), Vec3(0, 0, 1), 270.0)
-};
-
-#elif SCENE == 3
-// On left of scene looking center
-Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(200, 80, -160), Vec3(0, 10, -160), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(200, 80, -160), Vec3(0, 10, -160), Vec3(0, 1, 0), 270.0)
-};
-
-#elif SCENE == 4
-// Back of scene looking center
-Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 80, -350), Vec3(0, 10, 0), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 80, -350), Vec3(0, 10, 0), Vec3(0, 1, 0), 270.0)
-};
-
-#elif SCENE == 5
-// Camera from the left angled right
-Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(120, 20, -40), Vec3(0, 21, -100), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(120, 20, -40), Vec3(0, 21, -100), Vec3(0, 1, 0), 270.0)
-};
-
-#elif SCENE == 6
-// Camera from the back top angled down
-Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 150, -350), Vec3(0, 0, -100), Vec3(0, 0, -1)),
-    new PerspectiveCamera(Vec3(0, 150, -350), Vec3(0, 0, -100), Vec3(0, 0, -1), 270.0)
-};
-#endif
 
 Scene* scene = nullptr;
 
@@ -107,9 +69,10 @@ int main()
     std::vector<Surface*> surfaces;
 
     // Regular Scene
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -60.0f), 40.0f, RED_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, -170.0f), 60.0f, GREEN_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, -10.0f), 10.0f, BLUE_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(-120.0f, 40.0f, -60.0f), 40.0f, RED_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, -200.0f), 60.0f, GREEN_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 30.0f), 10.0f, BLUE_SPHERE_MAT));
+    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -60.0f), 40.0f, MIRROR_MAT));
     // surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
     // Snowman scene
@@ -124,7 +87,31 @@ int main()
 
     surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
-    scene = new Scene(HORIZON_DIR_LIGHT, surfaces, cameras);
+    // Mirror squares
+    // Left/Right Walls
+    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -60.0f),
+                                  Vec3(1, 0, 0),
+                                  Vec3(0.0f, 250.0f, 0.0f),
+                                  Vec3(0.0f, 0.0f, -200.0f),
+                                  MIRROR_MAT));
+    surfaces.push_back(new Rectangle(Vec3(130.0f, 0, -60.0f),
+                                  Vec3(-1, 0, 0),
+                                  Vec3(0.0f, 250.0f, 0.0f),
+                                  Vec3(0.0f, 0.0f, -200.0f),
+                                  MIRROR_MAT));
+    // Front/Back Wall
+    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -60.0f),
+                                  Vec3(0, 0, 1),
+                                  Vec3(0.0f, 250.0f, 0.0f),
+                                  Vec3(260.0f, 0.0f, 0.0f),
+                                  MIRROR_MAT));
+    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -260.0f),
+                                  Vec3(0, 0, 1),
+                                  Vec3(0.0f, 250.0f, 0.0f),
+                                  Vec3(260.0f, 0.0f, 0.0f),
+                                  MIRROR_MAT));
+
+    scene = new Scene(HIGH_NOON, surfaces, cameras);
 
     // glfw: initialize and configure
     // ------------------------------

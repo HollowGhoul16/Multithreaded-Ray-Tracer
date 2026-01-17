@@ -9,6 +9,14 @@ struct Vec3 {
 
     constexpr Vec3(const float& x, const float& y, const float& z);
 
+    float magnitude() const;
+
+    Vec3 normalize() const;
+
+    float dot(const Vec3& otherVec) const;
+
+    Vec3 cross(const Vec3& otherVec) const;
+
     const float& operator[](const int& i) const;
 
     Vec3 operator*(const float& scalar) const;
@@ -20,14 +28,6 @@ struct Vec3 {
     Vec3 operator-(const Vec3& otherVec) const;
 
     Vec3 operator-() const;
-
-    float magnitude() const;
-
-    Vec3 normalize() const;
-
-    float dot(const Vec3& otherVec) const;
-
-    Vec3 cross(const Vec3& otherVec) const;
 };
 
 struct Matrix3 {

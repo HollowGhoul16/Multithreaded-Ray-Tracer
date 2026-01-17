@@ -9,7 +9,9 @@ struct Material {
     Color ambientColor, diffuseColor, specularColor;
     float ambientCoeff, diffuseCoeff, specularCoeff;
     float specularExp;
-    bool glazed;
+    bool isGlazed, isMirror;
+
+    Material(const Color& color, const float& spe_coeff); // For constructing mirrors
 
     Material(
         const Color& ac, 

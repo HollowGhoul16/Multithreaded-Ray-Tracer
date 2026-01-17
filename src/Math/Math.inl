@@ -7,6 +7,33 @@ constexpr Vec3::Vec3() : x(0), y(0), z(0) {};
 constexpr Vec3::Vec3(const float& x, const float& y, const float& z)
                     : x(x), y(y), z(z) {};
 
+inline float Vec3::magnitude() const 
+{
+    return std::sqrt(x * x +
+                     y * y +
+                     z * z); 
+}
+
+inline Vec3 Vec3::normalize() const 
+{
+    if(this->magnitude() == 0) return Vec3(0, 0, 0);
+    return (*this / this->magnitude()); 
+}
+
+inline float Vec3::dot(const Vec3& otherVec) const 
+{
+    return (this->x * otherVec.x +
+            this->y * otherVec.y +
+            this->z * otherVec.z);
+}
+
+inline Vec3 Vec3::cross(const Vec3& otherVec) const 
+{
+    return Vec3((this->y * otherVec.z - this->z * otherVec.y),
+                (this->z * otherVec.x - this->x * otherVec.z),
+                (this->x * otherVec.y - this->y * otherVec.x));
+}
+
 inline const float& Vec3::operator[](const int& i) const 
 {
     return i == 0 ? x : (i == 1 ? y : z); 
@@ -43,33 +70,6 @@ inline Vec3 Vec3::operator-(const Vec3& otherVec) const
 inline Vec3 Vec3::operator-() const 
 {
     return Vec3(-x, -y, -z);          
-}
-
-inline float Vec3::magnitude() const 
-{
-    return std::sqrt(x * x +
-                     y * y +
-                     z * z); 
-}
-
-inline Vec3 Vec3::normalize() const 
-{
-    if(this->magnitude() == 0) return Vec3(0, 0, 0);
-    return (*this / this->magnitude()); 
-}
-
-inline float Vec3::dot(const Vec3& otherVec) const 
-{
-    return (this->x * otherVec.x +
-            this->y * otherVec.y +
-            this->z * otherVec.z);
-}
-
-inline Vec3 Vec3::cross(const Vec3& otherVec) const 
-{
-    return Vec3((this->y * otherVec.z - this->z * otherVec.y),
-                (this->z * otherVec.x - this->x * otherVec.z),
-                (this->x * otherVec.y - this->y * otherVec.x));
 }
 
 // Matrix3 Struct

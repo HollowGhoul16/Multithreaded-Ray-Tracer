@@ -15,16 +15,28 @@ constexpr unsigned int SCR_HEIGHT = 800;
 // Camera Constants
 
 constexpr float SHIFT = 2.5f;
-constexpr float THETA = 2.5 * (M_PI / 180); // Converts degrees to radians for the cmath functions
+constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for the cmath functions
 
 // Color Constants
 
-const Color WHITE     (255, 255, 255);
-const Color GREY      (128, 128, 128);
-const Color RED       (255, 0, 0);
-const Color GREEN     (0, 255, 0);
-const Color BLUE      (0, 0, 255);
-const Color SUN_COLOR (255, 150, 100);
+const Color WHITE              (255, 255, 255);
+const Color GREY               (128, 128, 128);
+const Color RED                (255, 0, 0);
+const Color GREEN              (0, 255, 0);
+const Color BLUE               (0, 0, 255);
+
+const Color MIRROR_WHITE       (250, 255, 250); // Slight green tint like real mirror
+const Color MIRROR_RED         (255, 127.5, 127.5);
+const Color MIRROR_GREEN       (127.5, 255, 127.5);
+const Color MIRROR_BLUE        (127.5, 127.5, 255);
+
+const Color SUN_COLOR          (255, 150, 100);
+const Color SKY_COLOR          (40, 40, 255);
+const Color NORM_HORIZON_COLOR (100, 100, 255);
+
+const Color HORIZON_SUN_COLOR  (255, 150, 100);
+const Color HORIZON_SKY_COLOR  (100, 104, 255);
+const Color HORIZON_COLOR      (255, 120, 60);
 
 // Material Constants
 
@@ -34,6 +46,7 @@ constexpr float SPE_COEFF = 0.4f;  // Specular Coefficient
 constexpr float SPE_EXP   = 100;   // Specular Exponent
 
 constexpr bool  IS_GLAZED = true;
+constexpr float MIR_COEFF = 0.95f;  // Specular coefficient for mirrors
 
 const Material RED_SPHERE_MAT(
     RED,
@@ -116,10 +129,40 @@ const Material PLANE_MAT(
     DIF_COEFF, 
     SPE_COEFF, 
     SPE_EXP, 
-    IS_GLAZED
+    !IS_GLAZED
+);
+
+const Material MIRROR_MAT(
+    MIRROR_WHITE,
+    MIR_COEFF
+);
+
+const Material RED_MIRROR_MAT(
+    MIRROR_RED,
+    MIR_COEFF
+);
+
+const Material GREEN_MIRROR_MAT(
+    MIRROR_GREEN,
+    MIR_COEFF
+);
+
+const Material BLUE_MIRROR_MAT(
+    MIRROR_BLUE,
+    MIR_COEFF
 );
 
 // Light Constants
 
-const DirectionalLight DIR_LIGHT         (SUN_COLOR, Vec3(1.0f, -1.0f, -1.0f), 1.0f);  // Normal sun
-const DirectionalLight HORIZON_DIR_LIGHT (SUN_COLOR, Vec3(0.0f, -1.0f, -5.0f), 1.0f);  // Sunset (on horizon)
+constexpr float LIGHT_INTENSITY = 1.0f;
+
+const DirectionalLight DIR_LIGHT         (HORIZON_SUN_COLOR, Vec3(1, -1, -1), LIGHT_INTENSITY);  // Normal sun
+const DirectionalLight HIGH_NOON_LIGHT   (SUN_COLOR, Vec3(0, -1, 0), LIGHT_INTENSITY);           // Sun straight up
+const DirectionalLight HORIZON_DIR_LIGHT (HORIZON_SUN_COLOR, Vec3(0, -1, -5), LIGHT_INTENSITY);  // Sunset (on horizon)
+
+// Atmosphere Constants
+
+constexpr float SUN_SIZE = 1.0f;
+
+const Atmosphere HIGH_NOON (HIGH_NOON_LIGHT, SUN_SIZE, SKY_COLOR, NORM_HORIZON_COLOR);
+const Atmosphere SUN_SET   (HORIZON_DIR_LIGHT, SUN_SIZE, HORIZON_SKY_COLOR, HORIZON_COLOR);
