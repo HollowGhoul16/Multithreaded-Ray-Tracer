@@ -8,7 +8,7 @@
 
 #include "Renderer/Scene.h"
 #include "Core/ThreadPool.h"
-#include "Core/Utils.hpp"
+#include "Core/Utils.h"
 
 #include "SceneConstants.cpp"
 
@@ -29,30 +29,32 @@ Camera* cameras[2] = {
 };
 
 Scene* scene = nullptr;
+ThreadPool* threadPoolptr = nullptr;
 
 // From https://www.glfw.org/docs/3.3/input_guide.html
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) // TODO: Create input handler class
 {
     // Toggles the camera type
+
     if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
+
+    // Change thread amount by power of 2
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        size_t currentThreadCount = threadPoolptr->getThreadCount();
+        if(currentThreadCount == 1) return;
+        threadPoolptr->setThreadCount(currentThreadCount / 2);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        size_t currentThreadCount = threadPoolptr->getThreadCount();
+        if(currentThreadCount == MAX_RENDER_THREAD_COUNT) return;
+        threadPoolptr->setThreadCount(currentThreadCount * 2);
+    }
 }
 
 int main()
 {
-    unsigned int threadCount;
-
-    while(true) {
-        std::cout << "Enter amount of working threads as a power of 2 (max: " +
-                     std::to_string(std::thread::hardware_concurrency()) +
-                     "):\n";
-
-        std::cin >> threadCount;
-
-        if(threadCount < std::thread::hardware_concurrency() && isPowerOfTwo(threadCount)) break;
-
-        std::cout << "Error.\n\n";
-    }
-
     unsigned int textureSideLength;
 
     while(true) {
@@ -236,11 +238,12 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    const int width  = textureSideLength; // keep it in powers of 2!
-    const int height = textureSideLength; // keep it in powers of 2!
-    unsigned char *image = new unsigned char[width * height * 3];
+    const unsigned int width  = textureSideLength; // keep it in powers of 2!
+    const unsigned int height = textureSideLength; // keep it in powers of 2!
+    unsigned char *image = new unsigned char[width * height * 3]; // TODO: attempt dynamic texture sizing
 
-    ThreadPool threadPool(threadCount);
+    ThreadPool threadPool(MAX_RENDER_THREAD_COUNT);
+    threadPoolptr = &threadPool;
 
     std::promise<bool> promiseFPS;
     std::future<bool> signalCompleteFPS = promiseFPS.get_future();
@@ -316,6 +319,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+    // Quit program
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
@@ -347,7 +351,7 @@ void processInput(GLFWwindow *window)
         for(Camera* camera : cameras) camera->updateOrigin(camera->basis.v * -SHIFT);
     }
 
-    // Rotations (have floating point errors and end up wrong, but can manually rotate back)
+    // Rotations (Suffers from gimbal lock, would need quaternions to solve)
 
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
         for(Camera* camera : cameras) camera->pitch(THETA);

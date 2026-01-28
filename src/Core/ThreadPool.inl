@@ -28,6 +28,8 @@ inline void ThreadPool::waitForThreads()
 
 inline size_t ThreadPool::getThreadCount() const { return threadCount_; }
 
+inline void ThreadPool::setThreadCount(const size_t newThreadCount) { threadCount_ = newThreadCount; }
+
 void ThreadPool::work()
 {
     while(active_) {

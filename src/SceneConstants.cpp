@@ -1,4 +1,5 @@
 #include "Renderer/Scene.h"
+#include "Core/Utils.h"
 
 /*
 ===============================
@@ -11,6 +12,8 @@
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 800;
 
+const unsigned int MAX_THREAD_COUNT        = maxThreadCount();
+const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
 
 // Camera Constants
 
@@ -80,7 +83,6 @@ const Material BLUE_SPHERE_MAT(
     SPE_EXP, 
     !IS_GLAZED
 );
-
 
 // Snowman Constants (Current scene)
 

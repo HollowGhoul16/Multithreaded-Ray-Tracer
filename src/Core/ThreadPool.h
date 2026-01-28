@@ -22,8 +22,10 @@ public:
 
 	size_t getThreadCount() const;
 
+	void setThreadCount(const size_t newThreadCount);
+
 private:
-	const size_t threadCount_;
+	std::atomic<size_t> threadCount_;
 	std::vector<std::thread> threads_;
 	std::atomic<int> workingThreadCount_{0};
 	std::condition_variable signal_;
