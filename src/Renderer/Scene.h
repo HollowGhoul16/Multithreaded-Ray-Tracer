@@ -2,22 +2,21 @@
 
 #include "Math/Math.h"
 #include "Shading/SurfaceProperties.h"
+#include "Acceleration/AABB.h"
+#include "Core/Mesh.h"
 #include "Core/Surfaces.h"
 #include "Core/Atmosphere.h"
 #include "Renderer/Cameras.h"
 #include "Shading/Lights.h"
-#include <limits>
-#include <string>
-#include <vector>
 
 struct Scene {
     Atmosphere atmosphere;
-    std::vector<Surface*> surfaces;
+    std::vector<Mesh> meshes;
     Camera* cameras[2]; // 0 index will be orthographic, 1 will be perspective
     Camera* currentCamera;
     bool toggleCamera = 1; // Starts on perspective as default
 
-    Scene(const Atmosphere& atm, std::vector<Surface*>& s, Camera* c[]);
+    Scene(const Atmosphere& atm, std::vector<Mesh>&& m, Camera* c[]);
 
     ~Scene();
 

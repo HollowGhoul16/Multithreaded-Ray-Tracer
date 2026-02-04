@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Shading/SurfaceProperties.h"
 #include <utility>
+
+#include "Shading/SurfaceProperties.h"
 
 struct Surface {
     Material material;
@@ -13,6 +14,8 @@ struct Surface {
     virtual std::pair<bool, float> intersection(const Ray& ray) const = 0;
 
     virtual Vec3 normal(const Ray& ray, const Vec3& point) const = 0;
+
+    virtual std::pair<Vec3, Vec3> getBounds() const = 0;
 };
 
 struct Sphere : Surface {
@@ -24,6 +27,8 @@ struct Sphere : Surface {
     std::pair<bool, float> intersection(const Ray& ray) const override;
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
+
+    std::pair<Vec3, Vec3> getBounds() const override;
 };
 
 struct Plane : Surface {
@@ -34,6 +39,8 @@ struct Plane : Surface {
     virtual std::pair<bool, float> intersection(const Ray& ray) const override;
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
+
+    virtual std::pair<Vec3, Vec3> getBounds() const override = 0;
 };
 
 struct Rectangle : Plane {
@@ -50,6 +57,8 @@ struct Rectangle : Plane {
     std::pair<bool, float> intersection(const Ray& ray) const override;
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
+
+    std::pair<Vec3, Vec3> getBounds() const override;
 };
 
 #include "Surfaces.inl"

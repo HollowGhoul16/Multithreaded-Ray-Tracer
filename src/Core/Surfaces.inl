@@ -19,7 +19,7 @@ inline std::pair<bool, float> Sphere::intersection(const Ray& ray) const
 
     float discriminant = (h * h) - (a * c);
 
-    if (discriminant < 0) return {false, 0.0};
+    if(discriminant < 0) return {false, 0.0};
 
     float t = (h - std::sqrt(discriminant)) / a;
 
@@ -27,7 +27,7 @@ inline std::pair<bool, float> Sphere::intersection(const Ray& ray) const
     if(t > 0.001) return {true, t};
 
     t = (h + std::sqrt(discriminant)) / a;
-    if (t > 0.001) return {true, t};
+    if(t > 0.001) return {true, t};
     else return {false, 0.0};
 }
 
@@ -36,6 +36,15 @@ inline Vec3 Sphere::normal(const Ray& ray, const Vec3& point) const
     Vec3 normalVec = (point - center).normalize();
     if(normalVec.dot(ray.direction) < 0) return normalVec;
     else return -normalVec;
+}
+
+inline std::pair<Vec3, Vec3> Sphere::getBounds() const
+{
+    Vec3 extent(radius, radius, radius);
+    Vec3 min = center - extent;
+    Vec3 max = center + extent;
+
+    return {min, max};
 }
 
 // Plane struct
@@ -47,7 +56,7 @@ inline std::pair<bool, float> Plane::intersection(const Ray& ray) const
 {
     float denom = ray.direction.dot(normalVec);
 
-    if (fabs(denom) < 1e-6f) return {false, 0.0f}; // Prevent t = inf
+    if(fabs(denom) < 1e-9f) return {false, 0.0f}; // Prevent t = inf
 
     float t = (point - ray.origin).dot(normalVec) / denom;
 
@@ -76,6 +85,7 @@ constexpr Rectangle::Rectangle(
       edge2(e2)
 {}
 
+// TODO: Figure out ray hitting rectangle edge, edge case (literally)
 inline std::pair<bool, float> Rectangle::intersection(const Ray &ray) const
 {
     std::pair<bool, float> intersection = Plane::intersection(ray);
@@ -97,4 +107,24 @@ inline std::pair<bool, float> Rectangle::intersection(const Ray &ray) const
 inline Vec3 Rectangle::normal(const Ray &ray, const Vec3 &point) const
 {
     return Plane::normal(ray, point);
+}
+
+inline std::pair<Vec3, Vec3> Rectangle::getBounds() const
+{
+    Vec3 oppositeCorner = corner + edge1 + edge2;
+    Vec3 min, max;
+
+    if(corner.x < oppositeCorner.x ||
+       corner.y < oppositeCorner.y ||
+       corner.z < oppositeCorner.z)
+    {
+        min = corner;
+        max = oppositeCorner;
+    }
+    else {
+        min = oppositeCorner;
+        max = corner;
+    }
+
+    return {min, max};
 }

@@ -68,52 +68,75 @@ int main()
         std::cout << "Error.\n";
     }
 
-    std::vector<Surface*> surfaces;
+    std::vector<Mesh> meshes;
+    std::vector<Surface*> snowmanSurfaces;
+    std::vector<Surface*> mirrorCubeSurfaces;
+    std::vector<Surface*> mirrorSphereSurface;
 
     // Regular Scene
     // surfaces.push_back(new Sphere(Vec3(-120.0f, 40.0f, -60.0f), 40.0f, RED_SPHERE_MAT));
     // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, -200.0f), 60.0f, GREEN_SPHERE_MAT));
     // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 30.0f), 10.0f, BLUE_SPHERE_MAT));
     // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -60.0f), 40.0f, MIRROR_MAT));
-    // surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
 
     // Snowman scene
-    surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, -160.0f), 30.0f, SNOWMAN_BODY_MAT));
-    surfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, -160.0f), 20.0f, SNOWMAN_BODY_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, -160.0f), 30.0f, SNOWMAN_BODY_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, -160.0f), 20.0f, SNOWMAN_BODY_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
-    surfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
 
-    surfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, -141.5f), 3.0f, SNOWMAN_NOSE_MAT));
+    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, -141.5f), 3.0f, SNOWMAN_NOSE_MAT));
 
-    surfaces.push_back(new Plane(Vec3(0, 0, 0), Vec3(0, 1, 0), PLANE_MAT));
+    Mesh snowman(std::move(snowmanSurfaces));
+    meshes.push_back(std::move(snowman));
 
     // Mirror squares
     // Left/Right Walls
-    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -60.0f),
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
                                   Vec3(1, 0, 0),
                                   Vec3(0.0f, 250.0f, 0.0f),
                                   Vec3(0.0f, 0.0f, -200.0f),
-                                  MIRROR_MAT));
-    surfaces.push_back(new Rectangle(Vec3(130.0f, 0, -60.0f),
+                                  RED_MIRROR_MAT));
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(130.0f, 0.0f, -60.0f),
                                   Vec3(-1, 0, 0),
                                   Vec3(0.0f, 250.0f, 0.0f),
                                   Vec3(0.0f, 0.0f, -200.0f),
-                                  MIRROR_MAT));
+                                  GREEN_MIRROR_MAT));
     // Front/Back Wall
-    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -60.0f),
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
                                   Vec3(0, 0, 1),
                                   Vec3(0.0f, 250.0f, 0.0f),
                                   Vec3(260.0f, 0.0f, 0.0f),
                                   MIRROR_MAT));
-    surfaces.push_back(new Rectangle(Vec3(-130.0f, 0, -260.0f),
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -260.0f),
                                   Vec3(0, 0, 1),
                                   Vec3(0.0f, 250.0f, 0.0f),
+                                  Vec3(260.0f, 0.0f, 0.0f),
+                                  BLUE_MIRROR_MAT));
+    // Top/Bottom Floor
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 250.0f, -60.0f),
+                                  Vec3(0, -1, 0),
+                                  Vec3(0.0f, 0.0f, -200.0f),
+                                  Vec3(260.0f, 0.0f, 0.0f),
+                                  MIRROR_MAT));
+    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
+                                  Vec3(0, 1, 0),
+                                  Vec3(0.0f, 0.0f, -200.0f),
                                   Vec3(260.0f, 0.0f, 0.0f),
                                   MIRROR_MAT));
 
-    scene = new Scene(HIGH_NOON, surfaces, cameras);
+    Mesh mirrorCube(std::move(mirrorCubeSurfaces));
+    meshes.push_back(std::move(mirrorCube));
+
+    // Big Mirror Sphere
+    mirrorSphereSurface.push_back(new Sphere(Vec3(0, -5000, -160), 5000, MIRROR_MAT));
+
+    Mesh mirrorSphere(std::move(mirrorSphereSurface));
+    meshes.push_back(std::move(mirrorSphere));
+
+    scene = new Scene(HIGH_NOON, std::move(meshes), cameras);
 
     // glfw: initialize and configure
     // ------------------------------

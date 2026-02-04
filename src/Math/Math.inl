@@ -2,10 +2,13 @@
 
 // Vec3 Struct
 
-constexpr Vec3::Vec3() : x(0), y(0), z(0) {};
+constexpr Vec3::Vec3() : x(0), y(0), z(0) {}
+
+constexpr Vec3::Vec3(const float& value) 
+                    : x(value), y(value), z(value) {}
 
 constexpr Vec3::Vec3(const float& x, const float& y, const float& z)
-                    : x(x), y(y), z(z) {};
+                    : x(x), y(y), z(z) {}
 
 inline float Vec3::magnitude() const 
 {
@@ -36,7 +39,12 @@ inline Vec3 Vec3::cross(const Vec3& otherVec) const
 
 inline const float& Vec3::operator[](const int& i) const 
 {
-    return i == 0 ? x : (i == 1 ? y : z); 
+    return i == 0 ? x : (i == 1 ? y : z);
+}
+
+inline float& Vec3::operator[](const int& i)
+{
+    return i == 0 ? x : (i == 1 ? y : z);
 }
 
 inline Vec3 Vec3::operator*(const float& scalar) const 
@@ -70,6 +78,15 @@ inline Vec3 Vec3::operator-(const Vec3& otherVec) const
 inline Vec3 Vec3::operator-() const 
 {
     return Vec3(-x, -y, -z);          
+}
+
+// Free functions for Vec3
+
+inline Vec3 operator/(const float& scalar, const Vec3& vec)
+{
+    return Vec3(scalar / vec.x,
+                scalar / vec.y,
+                scalar / vec.z);
 }
 
 // Matrix3 Struct

@@ -3,7 +3,7 @@ project(MultiThreadedRayTracer)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Werror -pthread -O3")
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Werror -pthread -O3 -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 
 find_package(OpenGL REQUIRED)

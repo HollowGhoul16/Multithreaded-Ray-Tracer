@@ -1,7 +1,7 @@
 #include "Scene.h"
 
-inline Scene::Scene(const Atmosphere& atm, std::vector<Surface*>& s, Camera* c[])
-                   : atmosphere(atm), surfaces(s) 
+inline Scene::Scene(const Atmosphere& atm, std::vector<Mesh>&& m, Camera* c[])
+                   : atmosphere(atm), meshes(std::move(m))
 {
     currentCamera = cameras[toggleCamera] = c[toggleCamera];
     cameras[!toggleCamera] = c[!toggleCamera];
@@ -9,15 +9,13 @@ inline Scene::Scene(const Atmosphere& atm, std::vector<Surface*>& s, Camera* c[]
 
 inline Scene::~Scene() 
 {
-    for (Surface* surface : surfaces) delete surface;
     for (Camera* camera : cameras) delete camera;
 }
 
 inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const
 {
-    Color color;
     Ray cameraRay = currentCamera->getRay(x, y);
-    color = rayTrace(cameraRay, recurse);
+    Color color = rayTrace(cameraRay, recurse);
     color.clamp();
     color.toSRGB(); // Gamma correction
 
@@ -26,21 +24,30 @@ inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) c
 
 inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 {
-    float tClosest = std::numeric_limits<float>::max(); 
+    float tClosestSurface = std::numeric_limits<float>::max();
+    float tClosestMesh = std::numeric_limits<float>::max();
+    const Mesh* closestMesh = nullptr;
     const Surface* closestSurface = nullptr;
 
-    for(const Surface* surface : surfaces) {
-        std::pair<bool, float> intersection = surface->intersection(ray);
+    for(const Mesh& mesh : meshes) {
+        std::pair<bool, float> meshIntersection = mesh.aabb.intersection(ray, tClosestMesh);
 
-        if(intersection.first && intersection.second < tClosest) {
-            tClosest = intersection.second;
-            closestSurface = surface;
+        if(!meshIntersection.first) continue;
+
+        closestMesh = &mesh;
+        std::pair<Surface*, float> surfaceIntersection = closestMesh->intersection(ray);
+        if(!surfaceIntersection.first) continue;
+        tClosestMesh = meshIntersection.second;
+
+        if(surfaceIntersection.second < tClosestSurface) {
+            tClosestSurface = surfaceIntersection.second;
+            closestSurface = surfaceIntersection.first;
         }
     }
 
     if(!closestSurface) return atmosphere.skyModel(ray);
 
-    Vec3 pointHit = ray.parametrize(tClosest);
+    Vec3 pointHit = ray.parametrize(tClosestSurface);
     Vec3 surfaceNormal = closestSurface->normal(ray, pointHit);
     const Material surfaceMat = closestSurface->material;
 
@@ -67,10 +74,12 @@ inline bool Scene::castShadow(const Vec3& pointHit, const Vec3& surfaceNormal) c
 {
     Ray shadowRay(pointHit + surfaceNormal * 0.001f, -atmosphere.sun.direction);
 
-    for(const Surface* surface : surfaces) {
-        std::pair<bool, float> intersection = surface->intersection(shadowRay);
+    for(const Mesh& mesh : meshes) {
+        std::pair<bool, float> intersection = mesh.aabb.intersection(shadowRay, std::numeric_limits<float>::max());
 
-        if(intersection.first) return true;
+        if(!intersection.first) continue;
+
+        if(mesh.intersection(shadowRay).first) return true;
     }
 
     return false;
