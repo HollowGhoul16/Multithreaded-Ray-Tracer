@@ -11,6 +11,8 @@ struct Material {
     float specularExp;
     bool isGlazed, isMirror;
 
+    Material() = default;
+
     Material(const Color& color, const float& spe_coeff); // For constructing mirrors
 
     Material(

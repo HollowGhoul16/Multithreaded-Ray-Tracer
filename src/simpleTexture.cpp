@@ -6,6 +6,7 @@
 #include <iostream>
 #include <future>
 
+#include "Geometry/MeshLoader.h"
 #include "Renderer/Scene.h"
 #include "Core/ThreadPool.h"
 #include "Core/Utils.h"
@@ -30,6 +31,7 @@ Camera* cameras[2] = {
 
 Scene* scene = nullptr;
 ThreadPool* threadPoolptr = nullptr;
+bool Mesh::wireframeAABB = false;
 
 // From https://www.glfw.org/docs/3.3/input_guide.html
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) // TODO: Create input handler class
@@ -37,6 +39,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     // Toggles the camera type
 
     if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
+
+    // Toggle Debug AABB
+
+    if (key == GLFW_KEY_B && action == GLFW_PRESS) Mesh::wireframeAABB = !Mesh::wireframeAABB;
 
     // Change thread amount by power of 2
 
@@ -63,36 +69,33 @@ int main()
 
         std::cin >> textureSideLength;
 
-        if(isPowerOfTwo(textureSideLength)) break;
+        if(isPowerOfTwo(textureSideLength)) {
+            std::cout << "\n";
+            break;
+        }
 
         std::cout << "Error.\n";
     }
 
     std::vector<Mesh> meshes;
-    std::vector<Surface*> snowmanSurfaces;
+    // std::vector<Surface*> snowmanSurfaces;
     std::vector<Surface*> mirrorCubeSurfaces;
     std::vector<Surface*> mirrorSphereSurface;
 
-    // Regular Scene
-    // surfaces.push_back(new Sphere(Vec3(-120.0f, 40.0f, -60.0f), 40.0f, RED_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 60.0f, -200.0f), 60.0f, GREEN_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 10.0f, 30.0f), 10.0f, BLUE_SPHERE_MAT));
-    // surfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -60.0f), 40.0f, MIRROR_MAT));
-
     // Snowman scene
-    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
-    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, -160.0f), 30.0f, SNOWMAN_BODY_MAT));
-    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, -160.0f), 20.0f, SNOWMAN_BODY_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 90.0f, -160.0f), 30.0f, SNOWMAN_BODY_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 130.0f, -160.0f), 20.0f, SNOWMAN_BODY_MAT));
 
-    snowmanSurfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
-    snowmanSurfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(-5.0f, 132.5f, -141.5f), 2.5f, SNOWMAN_EYE_MAT));
 
-    snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, -141.5f), 3.0f, SNOWMAN_NOSE_MAT));
+    // snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 127.5f, -141.5f), 3.0f, SNOWMAN_NOSE_MAT));
 
-    Mesh snowman(std::move(snowmanSurfaces));
-    meshes.push_back(std::move(snowman));
+    // Mesh snowman(std::move(snowmanSurfaces));
+    // meshes.push_back(std::move(snowman));
 
-    // Mirror squares
+    // Mirror box
     // Left/Right Walls
     mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
                                   Vec3(1, 0, 0),
@@ -128,7 +131,7 @@ int main()
                                   MIRROR_MAT));
 
     Mesh mirrorCube(std::move(mirrorCubeSurfaces));
-    meshes.push_back(std::move(mirrorCube));
+    // meshes.push_back(std::move(mirrorCube));
 
     // Big Mirror Sphere
     mirrorSphereSurface.push_back(new Sphere(Vec3(0, -5000, -160), 5000, MIRROR_MAT));
@@ -136,7 +139,16 @@ int main()
     Mesh mirrorSphere(std::move(mirrorSphereSurface));
     meshes.push_back(std::move(mirrorSphere));
 
-    scene = new Scene(HIGH_NOON, std::move(meshes), cameras);
+    // Import Models
+    Matrix4 cubeModelMatrix(Vec4(100, 0, 0, 0), Vec4(0, 100, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -150, 0));
+    Mesh cube = loadObj("../models/cube.obj", cubeModelMatrix, MIRROR_MAT);
+    meshes.push_back(std::move(cube));
+
+    Matrix4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
+    Mesh pawn = loadObj("../models/pawn.obj", pawnModelMatrix, RED_MAT);
+    meshes.push_back(std::move(pawn));
+
+    scene = new Scene(SUN_SET, std::move(meshes), cameras);
 
     // glfw: initialize and configure
     // ------------------------------

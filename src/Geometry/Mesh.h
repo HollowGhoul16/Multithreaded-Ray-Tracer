@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <algorithm>
 
 #include "Acceleration/AABB.h"
 #include "Surfaces.h"
@@ -9,6 +10,9 @@
 struct Mesh {
     AABB aabb;
     std::vector<Surface*> surfaces;
+    static bool wireframeAABB;
+
+    Mesh() = default;
 
     Mesh(std::vector<Surface*>&& surfaces);
 
@@ -16,7 +20,7 @@ struct Mesh {
 
     ~Mesh();
 
-    const std::pair<Surface*, float> intersection(const Ray& ray) const;
+    const HitData intersection(const Ray& ray) const;
 };
 
 #include "Mesh.inl"

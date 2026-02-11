@@ -62,5 +62,5 @@ inline PerspectiveCamera::PerspectiveCamera(const Vec3& origin, const Vec3& look
 
 inline Ray PerspectiveCamera::getRay(const float& x, const float& y) const
 {
-    return Ray(origin, (basis.w * distToImage + basis.u * x + basis.v * y).normalize());
+    return Ray(origin, (basis.w * distToImage + basis.u * x + basis.v * y));
 }

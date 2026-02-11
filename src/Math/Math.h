@@ -2,6 +2,14 @@
 
 #include <math.h>
 
+struct Vec2 {
+    float x, y;
+
+    constexpr Vec2();
+
+    constexpr Vec2(const float& x, const float& y);
+};
+
 struct Vec3 {
     float x, y, z;
 
@@ -36,6 +44,36 @@ struct Vec3 {
 
 Vec3 operator/(const float& scalar, const Vec3& vec);
 
+struct Vec4 {
+    float x, y, z, w;
+
+    constexpr Vec4();
+
+    constexpr Vec4(const float& value);
+
+    constexpr Vec4(const float& x, const float& y, const float& z, const float& w);
+
+    float magnitude() const;
+
+    Vec4 normalize() const;
+
+    float dot(const Vec4& otherVec) const;
+
+    const float& operator[](const int& i) const;
+
+    float& operator[](const int& i);
+
+    Vec4 operator*(const float& scalar) const;
+
+    Vec4 operator/(const float& scalar) const;
+
+    Vec4 operator+(const Vec4& otherVec) const;
+
+    Vec4 operator-(const Vec4& otherVec) const;
+
+    Vec4 operator-() const;
+};
+
 struct Matrix3 {
     Vec3 u, v, w;
 
@@ -48,6 +86,18 @@ struct Matrix3 {
     Matrix3 matmat(const Matrix3& otherM) const;
 
     void orthoNormalize(); // Prevent floating point errors for rotations with camera
+};
+
+struct Matrix4 {
+    Vec4 x, y, z, w;
+
+    constexpr Matrix4();
+
+    constexpr Matrix4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w);
+
+    Vec3 matvec(const Vec3& vec) const; // Uses 1 for w value for use of homogeneous coordinates
+
+    Vec4 matvec(const Vec4& vec) const;
 };
 
 struct Ray {

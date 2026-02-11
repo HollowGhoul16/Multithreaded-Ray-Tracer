@@ -27,6 +27,7 @@ const Color GREY               (128, 128, 128);
 const Color RED                (255, 0, 0);
 const Color GREEN              (0, 255, 0);
 const Color BLUE               (0, 0, 255);
+const Color DEBUG              (255, 0, 255);
 
 const Color MIRROR_WHITE       (250, 255, 250); // Slight green tint like real mirror
 const Color MIRROR_RED         (255, 127.5, 127.5);
@@ -51,36 +52,47 @@ constexpr float SPE_EXP   = 100;   // Specular Exponent
 constexpr bool  IS_GLAZED = true;
 constexpr float MIR_COEFF = 0.95f;  // Specular coefficient for mirrors
 
-const Material RED_SPHERE_MAT(
+const Material DEBUG_MAT(
+    DEBUG,
+    DEBUG,
+    WHITE,
+    AMB_COEFF, 
+    DIF_COEFF, 
+    SPE_COEFF, 
+    SPE_EXP, 
+    !IS_GLAZED
+);
+
+const Material RED_MAT(
     RED,
-    RED, 
-    WHITE, 
-    AMB_COEFF, 
-    DIF_COEFF, 
-    SPE_COEFF, 
-    SPE_EXP, 
+    RED,
+    WHITE,
+    AMB_COEFF,
+    DIF_COEFF,
+    SPE_COEFF,
+    SPE_EXP,
     !IS_GLAZED
 );
 
-const Material GREEN_SPHERE_MAT(
-    GREEN, 
-    GREEN, 
-    WHITE, 
-    AMB_COEFF, 
-    DIF_COEFF, 
-    SPE_COEFF, 
-    SPE_EXP, 
+const Material GREEN_MAT(
+    GREEN,
+    GREEN,
+    WHITE,
+    AMB_COEFF,
+    DIF_COEFF,
+    SPE_COEFF,
+    SPE_EXP,
     !IS_GLAZED
 );
 
-const Material BLUE_SPHERE_MAT(
-    BLUE, 
-    BLUE, 
-    WHITE, 
-    AMB_COEFF, 
-    DIF_COEFF, 
-    SPE_COEFF, 
-    SPE_EXP, 
+const Material BLUE_MAT(
+    BLUE,
+    BLUE,
+    WHITE,
+    AMB_COEFF,
+    DIF_COEFF,
+    SPE_COEFF,
+    SPE_EXP,
     !IS_GLAZED
 );
 

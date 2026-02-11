@@ -2,16 +2,17 @@
 
 #include <utility>
 
+#include "HitData.hpp"
 #include "Shading/SurfaceProperties.h"
 
 struct Surface {
     Material material;
 
-    constexpr Surface(const Material& m);
+    Surface(const Material& m);
 
     virtual ~Surface() = default;
 
-    virtual std::pair<bool, float> intersection(const Ray& ray) const = 0;
+    virtual HitData intersection(const Ray& ray) const = 0;
 
     virtual Vec3 normal(const Ray& ray, const Vec3& point) const = 0;
 
@@ -22,9 +23,9 @@ struct Sphere : Surface {
     Vec3 center;
     float radius;
 
-    constexpr Sphere(const Vec3& cent, const float& r, const Material& m);
+    Sphere(const Vec3& cent, const float& r, const Material& m);
 
-    std::pair<bool, float> intersection(const Ray& ray) const override;
+    HitData intersection(const Ray& ray) const override;
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
 
@@ -34,9 +35,9 @@ struct Sphere : Surface {
 struct Plane : Surface {
     Vec3 point, normalVec;
 
-    constexpr Plane(const Vec3& p, const Vec3& n, const Material& m);
+    Plane(const Vec3& p, const Vec3& n, const Material& m);
 
-    virtual std::pair<bool, float> intersection(const Ray& ray) const override;
+    HitData intersection(const Ray& ray) const override;
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
 
@@ -46,7 +47,9 @@ struct Plane : Surface {
 struct Rectangle : Plane {
     Vec3 corner, edge1, edge2;
 
-    constexpr Rectangle(
+    Rectangle(); // Meant for AABB wireframe construction
+
+    Rectangle(
         const Vec3& c,
         const Vec3& n,
         const Vec3& e1,
@@ -54,7 +57,22 @@ struct Rectangle : Plane {
         const Material& m
     );
 
-    std::pair<bool, float> intersection(const Ray& ray) const override;
+    HitData intersection(const Ray& ray) const override;
+
+    Vec3 normal(const Ray& ray, const Vec3& point) const override;
+
+    std::pair<Vec3, Vec3> getBounds() const override;
+};
+
+struct Triangle : Plane {
+    Vec3 vertices[3];
+    Vec3 edges[3];
+    Vec2 texCoords[3];
+    Vec3 normals[3];
+
+    Triangle(const Vec3 v[3], const Vec2 tc[3], const Vec3 n[3], const Material& m);
+
+    HitData intersection(const Ray& ray) const override; // Möller-Trumbore algorithm
 
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
 

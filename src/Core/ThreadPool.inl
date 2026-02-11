@@ -56,20 +56,16 @@ void ThreadPool::work()
 
 void rayTraceArea(Scene* scene, unsigned char image[], const int width, const int height, const int rowStart, const int rowEnd)
 {
-	for(int i = rowStart; i < rowEnd; i++) {
-		for (int j = 0; j < width; j++)
+	for(int j = rowStart; j < rowEnd; j++) {
+		for (int i = 0; i < width; i++)
 		{
-			// Translate pixels to image plane coords (normalize each pixel)
-			float u = (j + 0.5) / width;
-			float v = (i + 0.5) / height;
-
-			// Translate image plane coords to world coords
-			float x = (u - 0.5) * width;
-			float y = (v - 0.5) * height;
+			// Translate pixels to world coords
+            float x = (i + 0.5 - 0.5 * width);
+            float y = (j + 0.5 - 0.5 * height);
 
 			Color color = scene->getPixelColor(x, y);
 
-			int idx = (i * width + j) * 3;
+			int idx = (j * width + i) * 3;
 			image[idx]   = static_cast<unsigned char>(color.r);
 			image[idx+1] = static_cast<unsigned char>(color.g);
 			image[idx+2] = static_cast<unsigned char>(color.b);

@@ -26,43 +26,40 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 {
     float tClosestSurface = std::numeric_limits<float>::max();
     float tClosestMesh = std::numeric_limits<float>::max();
-    const Mesh* closestMesh = nullptr;
-    const Surface* closestSurface = nullptr;
+    HitData hitData;
 
     for(const Mesh& mesh : meshes) {
-        std::pair<bool, float> meshIntersection = mesh.aabb.intersection(ray, tClosestMesh);
+        HitData meshHitData = mesh.aabb.intersection(ray, tClosestMesh);
 
-        if(!meshIntersection.first) continue;
+        if(!meshHitData.hit) continue;
 
-        closestMesh = &mesh;
-        std::pair<Surface*, float> surfaceIntersection = closestMesh->intersection(ray);
-        if(!surfaceIntersection.first) continue;
-        tClosestMesh = meshIntersection.second;
+        HitData surfaceHitData = mesh.intersection(ray);
+        if(!surfaceHitData.hit) continue;
 
-        if(surfaceIntersection.second < tClosestSurface) {
-            tClosestSurface = surfaceIntersection.second;
-            closestSurface = surfaceIntersection.first;
+        if(surfaceHitData.t < tClosestSurface) {
+            tClosestMesh = meshHitData.t;
+            tClosestSurface = surfaceHitData.t;
+            hitData = surfaceHitData;
         }
     }
 
-    if(!closestSurface) return atmosphere.skyModel(ray);
+    if(!hitData.hit) return atmosphere.skyModel(ray);
 
-    Vec3 pointHit = ray.parametrize(tClosestSurface);
-    Vec3 surfaceNormal = closestSurface->normal(ray, pointHit);
-    const Material surfaceMat = closestSurface->material;
+    const Vec3 pointHit = hitData.point;
+    const Vec3 faceNormal = hitData.faceNormal;
+    const Material surfaceMat = hitData.material;
 
     Color color;
-    bool shadow;
     if(!surfaceMat.isMirror) {
-        shadow = castShadow(pointHit, surfaceNormal);
-        color = surfaceMat.getColor(ray, surfaceNormal, atmosphere.sun, shadow);
+        bool shadow = castShadow(pointHit, faceNormal);
+        color = surfaceMat.getColor(ray, hitData.shadingNormal, atmosphere.sun, shadow);
     }
 
     if(!surfaceMat.isGlazed || recurse <= 0) return color;
 
-    Vec3 rayDirNorm = ray.direction.normalize();
-    ray.origin = pointHit + surfaceNormal * 0.001f;
-    ray.direction = rayDirNorm - (surfaceNormal * surfaceNormal.dot(rayDirNorm) * 2);
+    const Vec3 rayDirNorm = ray.direction.normalize();
+    ray.origin = pointHit + faceNormal * 0.001f;
+    ray.direction = rayDirNorm - (faceNormal * faceNormal.dot(rayDirNorm) * 2);
 
     if(surfaceMat.isMirror) return rayTrace(ray,  --recurse) * surfaceMat.specularColor * surfaceMat.specularCoeff;
     else color = color + (rayTrace(ray,  --recurse) * surfaceMat.specularCoeff);
@@ -72,14 +69,15 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 
 inline bool Scene::castShadow(const Vec3& pointHit, const Vec3& surfaceNormal) const
 {
-    Ray shadowRay(pointHit + surfaceNormal * 0.001f, -atmosphere.sun.direction);
+    const Ray shadowRay(pointHit + surfaceNormal * 0.001f, -atmosphere.sun.direction);
+    HitData hitData;
 
     for(const Mesh& mesh : meshes) {
-        std::pair<bool, float> intersection = mesh.aabb.intersection(shadowRay, std::numeric_limits<float>::max());
+        hitData = mesh.aabb.intersection(shadowRay, std::numeric_limits<float>::max());
 
-        if(!intersection.first) continue;
+        if(!hitData.hit) continue;
 
-        if(mesh.intersection(shadowRay).first) return true;
+        if(mesh.intersection(shadowRay).hit) return true;
     }
 
     return false;

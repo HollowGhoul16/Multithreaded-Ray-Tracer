@@ -17,6 +17,7 @@ inline Mesh::Mesh(std::vector<Surface*>&& surfaces)
 
     aabb.min = min;
     aabb.max = max;
+    aabb.constructWireframe();
 }
 
 inline Mesh::Mesh(Mesh&& otherMesh)
@@ -27,19 +28,30 @@ inline Mesh::~Mesh()
     for (Surface* surface : surfaces) delete surface;
 }
 
-inline const std::pair<Surface*, float> Mesh::intersection(const Ray &ray) const
+inline const HitData Mesh::intersection(const Ray &ray) const
 {
-    float tClosest = std::numeric_limits<float>::max(); 
-    Surface* closestSurface = nullptr;
+    float tClosest = std::numeric_limits<float>::max();
+    HitData finalHitData;
 
     for(Surface* surface : surfaces) {
-        std::pair<bool, float> intersection = surface->intersection(ray);
+        HitData currenthitData = surface->intersection(ray);
 
-        if(intersection.first && intersection.second < tClosest) {
-            tClosest = intersection.second;
-            closestSurface = surface;
+        if(currenthitData.hit && currenthitData.t < tClosest) {
+            tClosest = currenthitData.t;
+            finalHitData = currenthitData;
         }
     }
 
-    return {closestSurface, tClosest};
+    if(wireframeAABB) {
+        for(const Rectangle& rect : aabb.wireframe) {
+            HitData currenthitData = rect.intersection(ray);
+
+            if(currenthitData.hit && currenthitData.t < tClosest) {
+                tClosest = currenthitData.t;
+                finalHitData = currenthitData;
+            }
+        }
+    }
+
+    return finalHitData;
 }
