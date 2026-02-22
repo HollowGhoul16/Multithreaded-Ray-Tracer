@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include <random>
 
 struct Vec2 {
     float x, y;
@@ -8,6 +9,10 @@ struct Vec2 {
     constexpr Vec2();
 
     constexpr Vec2(const float& x, const float& y);
+
+    static Vec2 randomRayOffset();
+
+    float magnitude() const;
 };
 
 struct Vec3 {
@@ -18,6 +23,8 @@ struct Vec3 {
     constexpr Vec3(const float& value);
 
     constexpr Vec3(const float& x, const float& y, const float& z);
+
+    static Vec3 randomSphereUnitVector();
 
     float magnitude() const;
 
@@ -77,7 +84,7 @@ struct Vec4 {
 struct Matrix3 {
     Vec3 u, v, w;
 
-    constexpr Matrix3();
+    constexpr Matrix3() = default;
 
     constexpr Matrix3(const Vec3& u, const Vec3& v, const Vec3& w);
 
@@ -91,7 +98,7 @@ struct Matrix3 {
 struct Matrix4 {
     Vec4 x, y, z, w;
 
-    constexpr Matrix4();
+    constexpr Matrix4() = default;
 
     constexpr Matrix4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w);
 
@@ -103,7 +110,9 @@ struct Matrix4 {
 struct Ray {
     Vec3 origin, direction;
 
-    constexpr Ray(const Vec3& o, const Vec3& d);
+    Ray() = default;
+
+    Ray(const Vec3& o, const Vec3& d);
 
     Vec3 parametrize(const float& t) const;
 };

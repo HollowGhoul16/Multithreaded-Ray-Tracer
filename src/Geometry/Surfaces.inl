@@ -187,25 +187,10 @@ inline Triangle::Triangle(const Vec3 v[3], const Vec2 tc[3], const Vec3 n[3], co
 
 inline HitData Triangle::intersection(const Ray& ray) const
 {
-    /* Geometric Solution ----------------------------------------------
-//     HitData hitData = Plane::intersection(ray);
-//     if(hitData.hit == false) return hitData; // Check if on triangle's plane
-
-//     Vec3 vertToPoint;
-//     Vec3 normal = normalVec;
-//     Vec3 pointHit = hitData.point
-
-//     for(int i = 0; i < 3; ++i) {
-//         vertToPoint = pointHit - vertices[i];
-//         if(edges[i].cross(vertToPoint).dot(normal) < 0) return hitData;
-//     }
-//     Fill in hitData before returning here
-//     return intersection;
--------------------------------------------------------------------*/
     HitData hitData;
 
-    Vec3 v0v1 = vertices[1] - vertices[0];
-    Vec3 v0v2 = vertices[2] - vertices[0];
+    Vec3 v0v1 = edges[0];
+    Vec3 v0v2 = -edges[2];
     Vec3 pvec = ray.direction.cross(v0v2);
     float det = v0v1.dot(pvec);
 

@@ -7,6 +7,23 @@ constexpr Vec2::Vec2() : x(0), y(0) {}
 constexpr Vec2::Vec2(const float& x, const float& y)
                     : x(x), y(y) {}
 
+inline Vec2 Vec2::randomRayOffset()
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dist(-0.5f, 0.5f);
+
+    return Vec2(dist(gen), dist(gen));
+}
+
+inline float Vec2::magnitude() const
+{
+    return std::sqrt(x * x +
+                     y * y);
+}
+
+// Vec2 Free functions
+
 // Vec3 Struct
 
 constexpr Vec3::Vec3() : x(0), y(0), z(0) {}
@@ -17,11 +34,28 @@ constexpr Vec3::Vec3(const float& value)
 constexpr Vec3::Vec3(const float& x, const float& y, const float& z)
                     : x(x), y(y), z(z) {}
 
+inline Vec3 Vec3::randomSphereUnitVector()
+{
+    static const int ITERATE_LIMIT = 100;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+    Vec3 randVec = Vec3(dist(gen), dist(gen), dist(gen));
+
+    for(int i = 0; i < ITERATE_LIMIT; ++i) {
+        if(randVec.magnitude() <= 1) return randVec.normalize();
+        randVec = Vec3(dist(gen), dist(gen), dist(gen));
+    }
+
+    return Vec3(); // Return the zero vector if we are unlucky
+}
+
 inline float Vec3::magnitude() const
 {
     return std::sqrt(x * x +
                      y * y +
-                     z * z); 
+                     z * z);
 }
 
 inline Vec3 Vec3::normalize() const
@@ -189,8 +223,6 @@ inline Vec4 operator/(const float& scalar, const Vec4& vec)
 
 // Matrix3 Struct
 
-constexpr Matrix3::Matrix3() {};
-
 constexpr Matrix3::Matrix3(const Vec3& u, const Vec3& v, const Vec3& w)
                           : u(u), v(v), w(w) {};
 
@@ -220,8 +252,6 @@ inline void Matrix3::orthoNormalize()
 }
 
 // Matrix4 Struct
-
-constexpr Matrix4::Matrix4() {};
 
 constexpr Matrix4::Matrix4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w)
                           : x(x), y(y), z(z), w(w) {};
@@ -253,8 +283,8 @@ inline Vec4 Matrix4::matvec(const Vec4& vec) const
 
 // Ray Struct
 
-constexpr Ray::Ray(const Vec3& o, const Vec3& d)
-                  : origin(o), direction(d) {};
+inline Ray::Ray(const Vec3& o, const Vec3& d)
+               : origin(o), direction(d) {};
 
 inline Vec3 Ray::parametrize(const float& t) const 
 {

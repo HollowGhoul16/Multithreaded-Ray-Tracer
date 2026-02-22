@@ -22,31 +22,35 @@ constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for 
 
 // Color Constants
 
-const Color WHITE              (255, 255, 255);
-const Color GREY               (128, 128, 128);
-const Color RED                (255, 0, 0);
-const Color GREEN              (0, 255, 0);
-const Color BLUE               (0, 0, 255);
-const Color DEBUG              (255, 0, 255);
+const Color WHITE               (255, 255, 255);
+const Color GREY                (128, 128, 128);
+const Color RED                 (255, 0, 0);
+const Color GREEN               (0, 255, 0);
+const Color BLUE                (0, 0, 255);
+const Color DEBUG               (255, 0, 255);
 
-const Color MIRROR_WHITE       (250, 255, 250); // Slight green tint like real mirror
-const Color MIRROR_RED         (255, 127.5, 127.5);
-const Color MIRROR_GREEN       (127.5, 255, 127.5);
-const Color MIRROR_BLUE        (127.5, 127.5, 255);
+const Color MIRROR_WHITE        (250, 255, 250); // Slight green tint like real mirror
+const Color MIRROR_RED          (255, 127.5, 127.5);
+const Color MIRROR_GREEN        (127.5, 255, 127.5);
+const Color MIRROR_BLUE         (127.5, 127.5, 255);
 
-const Color SUN_COLOR          (255, 150, 100);
-const Color SKY_COLOR          (40, 40, 255);
-const Color NORM_HORIZON_COLOR (100, 100, 255);
+const Color SUN_COLOR           (255, 150, 100);
+const Color SKY_COLOR           (40, 40, 255);
+const Color NORM_HORIZON_COLOR  (100, 100, 255);
 
-const Color HORIZON_SUN_COLOR  (255, 150, 100);
-const Color HORIZON_SKY_COLOR  (100, 104, 255);
-const Color HORIZON_COLOR      (255, 120, 60);
+const Color HORIZON_SUN_COLOR   (255, 150, 100);
+const Color HORIZON_SKY_COLOR   (100, 104, 255);
+const Color HORIZON_COLOR       (255, 120, 60);
+
+const Color MIDNIGHT_MOON_COLOR (180, 180, 180);
+const Color MIDNIGHT_SKY_COLOR  (13, 13, 56);
+const Color MIDNIGHT_HOR_COLOR  (10, 10, 80);
 
 // Material Constants
 
 constexpr float AMB_COEFF = 0.05f; // Ambient Coefficient
-constexpr float DIF_COEFF = 0.55f; // Diffuse Coefficient
-constexpr float SPE_COEFF = 0.4f;  // Specular Coefficient
+constexpr float DIF_COEFF = 0.50f; // Diffuse Coefficient
+constexpr float SPE_COEFF = 0.45f;  // Specular Coefficient
 constexpr float SPE_EXP   = 100;   // Specular Exponent
 
 constexpr bool  IS_GLAZED = true;
@@ -168,15 +172,23 @@ const Material BLUE_MIRROR_MAT(
 
 // Light Constants
 
-constexpr float LIGHT_INTENSITY = 1.0f;
+constexpr float MAX_LIGHT_INTENSITY  = 1.0f;
+constexpr float MOON_LIGHT_INTENSITY = 0.1f;
 
-const DirectionalLight DIR_LIGHT         (HORIZON_SUN_COLOR, Vec3(1, -1, -1), LIGHT_INTENSITY);  // Normal sun
-const DirectionalLight HIGH_NOON_LIGHT   (SUN_COLOR, Vec3(0, -1, 0), LIGHT_INTENSITY);           // Sun straight up
-const DirectionalLight HORIZON_DIR_LIGHT (HORIZON_SUN_COLOR, Vec3(0, -1, -5), LIGHT_INTENSITY);  // Sunset (on horizon)
+const DirectionalLight DIR_LIGHT         (HORIZON_SUN_COLOR, Vec3(1, -1, -1), MAX_LIGHT_INTENSITY);  // Normal sun
+const DirectionalLight HIGH_NOON_LIGHT   (SUN_COLOR, Vec3(0, -1, 0), MAX_LIGHT_INTENSITY);           // Sun straight up
+const DirectionalLight HORIZON_DIR_LIGHT (HORIZON_SUN_COLOR, Vec3(0, -1, -5), MAX_LIGHT_INTENSITY);  // Sunset (on horizon)
+const DirectionalLight MIDNIGHT_LIGHT    (MIDNIGHT_MOON_COLOR, Vec3(0, -1, -5), MOON_LIGHT_INTENSITY);  // Sunset (on horizon)
+
+// Point Light Materials (just colors)
+
+const Material WHITE_LIGHT_MAT(WHITE);
 
 // Atmosphere Constants
 
-constexpr float SUN_SIZE = 1.0f;
+constexpr float SUN_SIZE  = 1.0f;
+constexpr float MOON_SIZE = 0.3f;
 
 const Atmosphere HIGH_NOON (HIGH_NOON_LIGHT, SUN_SIZE, SKY_COLOR, NORM_HORIZON_COLOR);
 const Atmosphere SUN_SET   (HORIZON_DIR_LIGHT, SUN_SIZE, HORIZON_SKY_COLOR, HORIZON_COLOR);
+const Atmosphere MIDNIGHT  (MIDNIGHT_LIGHT, MOON_SIZE, MIDNIGHT_SKY_COLOR, MIDNIGHT_HOR_COLOR);

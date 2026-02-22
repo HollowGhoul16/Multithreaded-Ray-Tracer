@@ -11,11 +11,12 @@
 struct Scene {
     Atmosphere atmosphere;
     std::vector<Mesh> meshes;
+    std::vector<Light*> lights;
     Camera* cameras[2]; // 0 index will be orthographic, 1 will be perspective
     Camera* currentCamera;
     bool toggleCamera = 1; // Starts on perspective as default
 
-    Scene(const Atmosphere& atm, std::vector<Mesh>&& m, Camera* c[]);
+    Scene(const Atmosphere& atm, std::vector<Mesh>&& m, std::vector<Light*> l, Camera* c[]);
 
     ~Scene();
 
@@ -23,7 +24,9 @@ struct Scene {
 
     Color rayTrace(Ray& ray, int& recurse) const;
 
-    bool castShadow(const Vec3& pointHit, const Vec3& surfaceNormal) const;
+    Color getColor(const Material& mat, const Ray& ray, const Vec3& point, const Vec3& normal) const;
+
+    bool castShadow(const Light* light, const Vec3& lightDir, const Vec3& pointHit, const Vec3& surfaceNormal) const;
 
     void switchCamera();
 };

@@ -80,7 +80,7 @@ int main()
     std::vector<Mesh> meshes;
     // std::vector<Surface*> snowmanSurfaces;
     std::vector<Surface*> mirrorCubeSurfaces;
-    std::vector<Surface*> mirrorSphereSurface;
+    std::vector<Surface*> groundSphereSurface;
 
     // Snowman scene
     // snowmanSurfaces.push_back(new Sphere(Vec3(0.0f, 40.0f, -160.0f), 40.0f, SNOWMAN_BODY_MAT));
@@ -97,50 +97,50 @@ int main()
 
     // Mirror box
     // Left/Right Walls
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
-                                  Vec3(1, 0, 0),
-                                  Vec3(0.0f, 250.0f, 0.0f),
-                                  Vec3(0.0f, 0.0f, -200.0f),
-                                  RED_MIRROR_MAT));
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(130.0f, 0.0f, -60.0f),
-                                  Vec3(-1, 0, 0),
-                                  Vec3(0.0f, 250.0f, 0.0f),
-                                  Vec3(0.0f, 0.0f, -200.0f),
-                                  GREEN_MIRROR_MAT));
-    // Front/Back Wall
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
-                                  Vec3(0, 0, 1),
-                                  Vec3(0.0f, 250.0f, 0.0f),
-                                  Vec3(260.0f, 0.0f, 0.0f),
-                                  MIRROR_MAT));
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -260.0f),
-                                  Vec3(0, 0, 1),
-                                  Vec3(0.0f, 250.0f, 0.0f),
-                                  Vec3(260.0f, 0.0f, 0.0f),
-                                  BLUE_MIRROR_MAT));
-    // Top/Bottom Floor
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 250.0f, -60.0f),
-                                  Vec3(0, -1, 0),
-                                  Vec3(0.0f, 0.0f, -200.0f),
-                                  Vec3(260.0f, 0.0f, 0.0f),
-                                  MIRROR_MAT));
-    mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
-                                  Vec3(0, 1, 0),
-                                  Vec3(0.0f, 0.0f, -200.0f),
-                                  Vec3(260.0f, 0.0f, 0.0f),
-                                  MIRROR_MAT));
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
+    //                               Vec3(1, 0, 0),
+    //                               Vec3(0.0f, 250.0f, 0.0f),
+    //                               Vec3(0.0f, 0.0f, -200.0f),
+    //                               RED_MIRROR_MAT));
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(130.0f, 0.0f, -60.0f),
+    //                               Vec3(-1, 0, 0),
+    //                               Vec3(0.0f, 250.0f, 0.0f),
+    //                               Vec3(0.0f, 0.0f, -200.0f),
+    //                               GREEN_MIRROR_MAT));
+    // // Front/Back Wall
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
+    //                               Vec3(0, 0, 1),
+    //                               Vec3(0.0f, 250.0f, 0.0f),
+    //                               Vec3(260.0f, 0.0f, 0.0f),
+    //                               MIRROR_MAT));
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -260.0f),
+    //                               Vec3(0, 0, 1),
+    //                               Vec3(0.0f, 250.0f, 0.0f),
+    //                               Vec3(260.0f, 0.0f, 0.0f),
+    //                               BLUE_MIRROR_MAT));
+    // // Top/Bottom Floor
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 250.0f, -60.0f),
+    //                               Vec3(0, -1, 0),
+    //                               Vec3(0.0f, 0.0f, -200.0f),
+    //                               Vec3(260.0f, 0.0f, 0.0f),
+    //                               MIRROR_MAT));
+    // mirrorCubeSurfaces.push_back(new Rectangle(Vec3(-130.0f, 0.0f, -60.0f),
+    //                               Vec3(0, 1, 0),
+    //                               Vec3(0.0f, 0.0f, -200.0f),
+    //                               Vec3(260.0f, 0.0f, 0.0f),
+    //                               MIRROR_MAT));
 
-    Mesh mirrorCube(std::move(mirrorCubeSurfaces));
+    // Mesh mirrorCube(std::move(mirrorCubeSurfaces));
     // meshes.push_back(std::move(mirrorCube));
 
-    // Big Mirror Sphere
-    mirrorSphereSurface.push_back(new Sphere(Vec3(0, -5000, -160), 5000, MIRROR_MAT));
+    // Big Ground Sphere
+    groundSphereSurface.push_back(new Sphere(Vec3(0, -7000, -160), 7000, BLUE_MAT));
 
-    Mesh mirrorSphere(std::move(mirrorSphereSurface));
-    meshes.push_back(std::move(mirrorSphere));
+    Mesh groundSphere(std::move(groundSphereSurface));
+    meshes.push_back(std::move(groundSphere));
 
     // Import Models
-    Matrix4 cubeModelMatrix(Vec4(100, 0, 0, 0), Vec4(0, 100, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -150, 0));
+    Matrix4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 0));
     Mesh cube = loadObj("../models/cube.obj", cubeModelMatrix, MIRROR_MAT);
     meshes.push_back(std::move(cube));
 
@@ -148,7 +148,18 @@ int main()
     Mesh pawn = loadObj("../models/pawn.obj", pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
 
-    scene = new Scene(SUN_SET, std::move(meshes), cameras);
+    // Lights
+    std::vector<Light*> lights; // intensity needs to be huge for point lights?
+
+    Surface* lightSphere1 = new Sphere(Vec3(40, 60, -170), 3.0f, WHITE_LIGHT_MAT);
+    Light* pointlight1  = new PointLight(Color(255, 255, 255), Vec3(40, 60, -170), 1000, lightSphere1);
+    lights.push_back(pointlight1);
+
+    Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, WHITE_LIGHT_MAT);
+    Light* pointlight2  = new PointLight(Color(255, 255, 255), Vec3(0, 50, -250), 1000, lightSphere2);
+    lights.push_back(pointlight2);
+
+    scene = new Scene(MIDNIGHT, std::move(meshes), std::move(lights), cameras);
 
     // glfw: initialize and configure
     // ------------------------------

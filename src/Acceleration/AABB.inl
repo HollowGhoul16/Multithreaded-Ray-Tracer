@@ -35,6 +35,7 @@ inline HitData AABB::intersection(const Ray &ray, const float& tClosestMax) cons
     if(tHit <= tClosestMax) {
         hitData.hit = true;
         hitData.t = tHit;
+        hitData.point = ray.parametrize(tHit);
     }
 
     return hitData;
