@@ -16,4 +16,4 @@ enum ObjFormat {
     Invalid
 };
 
-Mesh loadObj(const std::string& path, const Matrix4& modelMatrix, const Material& mat); // Supports only triangles
+Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& mat); // Supports only triangles

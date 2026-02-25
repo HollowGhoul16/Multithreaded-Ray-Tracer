@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Math.h"
+#include "Math/Vec.h"
 #include "Geometry/HitData.hpp"
 #include "Geometry/Surfaces.h"
 

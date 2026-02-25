@@ -4,7 +4,7 @@
 
 struct Camera {
     Vec3 origin;
-    Matrix3 basis; // u = right, v = up, w = lookAt (vectors)
+    Mat3 basis; // u = right, v = up, w = lookAt (vectors)
 
     Camera(const Vec3& origin, const Vec3& lookAt, const Vec3& orientation);
 

@@ -1,4 +1,4 @@
-#include "Math.h"
+#include "Vec.h"
 
 // Vec2 Struct
 
@@ -21,8 +21,6 @@ inline float Vec2::magnitude() const
     return std::sqrt(x * x +
                      y * y);
 }
-
-// Vec2 Free functions
 
 // Vec3 Struct
 
@@ -219,74 +217,4 @@ inline Vec4 operator/(const float& scalar, const Vec4& vec)
                 scalar / vec.y,
                 scalar / vec.z,
                 scalar / vec.w);
-}
-
-// Matrix3 Struct
-
-constexpr Matrix3::Matrix3(const Vec3& u, const Vec3& v, const Vec3& w)
-                          : u(u), v(v), w(w) {};
-
-inline Vec3 Matrix3::matvec(const Vec3& vec) const 
-{
-    Vec3 col1 = u * vec.x;
-    Vec3 col2 = v * vec.y;
-    Vec3 col3 = w * vec.z;
-
-    return Vec3(col1.x + col2.x + col3.x, 
-                col1.y + col2.y + col3.y, 
-                col1.z + col2.z + col3.z);
-}
-
-inline Matrix3 Matrix3::matmat(const Matrix3& otherM) const 
-{
-    return Matrix3(matvec(otherM.u), matvec(otherM.v), matvec(otherM.w));
-}
-
-inline void Matrix3::orthoNormalize() 
-{
-    u = u.normalize();
-    v = v - (u * v.dot(u));
-    v = v.normalize();
-    w = v.cross(u);
-    w = w.normalize();
-}
-
-// Matrix4 Struct
-
-constexpr Matrix4::Matrix4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w)
-                          : x(x), y(y), z(z), w(w) {};
-
-inline Vec3 Matrix4::matvec(const Vec3& vec) const 
-{
-    Vec4 col1 = x * vec.x;
-    Vec4 col2 = y * vec.y;
-    Vec4 col3 = z * vec.z;
-    Vec4 col4 = w;
-
-    return Vec3(col1.x + col2.x + col3.x + col4.x,
-                col1.y + col2.y + col3.y + col4.y,
-                col1.z + col2.z + col3.z + col4.z);
-}
-
-inline Vec4 Matrix4::matvec(const Vec4& vec) const 
-{
-    Vec4 col1 = x * vec.x;
-    Vec4 col2 = y * vec.y;
-    Vec4 col3 = z * vec.z;
-    Vec4 col4 = w * vec.w;
-
-    return Vec4(col1.x + col2.x + col3.x + col4.x,
-                col1.y + col2.y + col3.y + col4.y, 
-                col1.z + col2.z + col3.z + col4.z,
-                col1.w + col2.w + col3.w + col4.w);
-}
-
-// Ray Struct
-
-inline Ray::Ray(const Vec3& o, const Vec3& d)
-               : origin(o), direction(d) {};
-
-inline Vec3 Ray::parametrize(const float& t) const 
-{
-    return origin + direction * t;
 }

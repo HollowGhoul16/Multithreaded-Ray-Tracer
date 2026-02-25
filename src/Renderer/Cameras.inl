@@ -17,7 +17,7 @@ inline void Camera::updateOrigin(const Vec3& shift)
 
 inline void Camera::pitch(const float& theta)
 {
-    Matrix3 rotation(Vec3(1, 0, 0),
+    Mat3 rotation(Vec3(1, 0, 0),
                      Vec3(0, std::cos(theta), -std::sin(theta)),
                      Vec3(0, std::sin(theta), std::cos(theta)));
 
@@ -27,7 +27,7 @@ inline void Camera::pitch(const float& theta)
 
 inline void Camera::yaw(const float& theta)
 {
-    Matrix3 rotation(Vec3(std::cos(theta), 0, std::sin(theta)),
+    Mat3 rotation(Vec3(std::cos(theta), 0, std::sin(theta)),
                      Vec3(0, 1, 0),
                      Vec3(-std::sin(theta), 0, std::cos(theta)));
 
@@ -37,7 +37,7 @@ inline void Camera::yaw(const float& theta)
 
 inline void Camera::roll(const float& theta)
 {
-    Matrix3 rotation(Vec3(std::cos(theta), std::sin(theta), 0),
+    Mat3 rotation(Vec3(std::cos(theta), std::sin(theta), 0),
                      Vec3(-std::sin(theta), std::cos(theta), 0),
                      Vec3(0, 0, 1));
 

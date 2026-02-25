@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Math.h"
+#include "Math/Vec.h"
 #include "Color.h"
 
 struct Surface;

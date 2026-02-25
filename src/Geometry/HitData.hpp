@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shading/SurfaceProperties.h"
-#include "Math/Math.h"
+#include "Math/Vec.h"
 
 struct HitData {
     bool hit = false;

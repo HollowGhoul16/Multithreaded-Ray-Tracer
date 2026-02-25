@@ -140,11 +140,11 @@ int main()
     meshes.push_back(std::move(groundSphere));
 
     // Import Models
-    Matrix4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 0));
+    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 0));
     Mesh cube = loadObj("../models/cube.obj", cubeModelMatrix, MIRROR_MAT);
     meshes.push_back(std::move(cube));
 
-    Matrix4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
+    Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
     Mesh pawn = loadObj("../models/pawn.obj", pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
 

@@ -1,6 +1,6 @@
 #include "MeshLoader.h"
 
-Mesh loadObj(const std::string& path, const Matrix4& modelMatrix, const Material& mat)
+Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& mat)
 {
     ObjFormat fileFormat = ObjFormat::Invalid;
     std::ifstream obj;
