@@ -7,7 +7,15 @@
 struct Color {
     float r, g, b;
 
-    Color(const float& r = 0, const float& g = 0, const float& b = 0);
+    Color();
+
+    Color(const float& r, const float& g, const float& b);
+
+    static Color lerp(const Color& color1, const Color& color2, const float& scalar);
+
+    void toSRGB();
+
+    void clamp();
 
     Color operator*(const float& coeff) const;
 
@@ -16,10 +24,6 @@ struct Color {
     Color operator*(const Color& otherColor) const;
 
     Color operator+(const Color& otherColor) const;
-
-    void toSRGB();
-
-    void clamp();
 };
 
 #include "Color.inl"

@@ -3,7 +3,7 @@
 inline Scene::Scene(const Atmosphere& atm, std::vector<Mesh>&& m, std::vector<Light*> l, Camera* c[])
                    : atmosphere(atm), meshes(std::move(m)), lights(std::move(l))
 {
-    lights.push_back(&atmosphere.sun);
+    lights.push_back(&atmosphere.luminary);
     currentCamera = cameras[toggleCamera] = c[toggleCamera];
     cameras[!toggleCamera] = c[!toggleCamera];
 }
@@ -16,24 +16,6 @@ inline Scene::~Scene()
 inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const
 {
     Ray cameraRay = currentCamera->getRay(x, y);
-
-    /* Testing SSAA Antialiasing
-    Color color;
-    Vec2 randomOffset;
-
-    const SAMPLES = 0;
-
-    // for(int i = 0; i < SAMPLES; ++i) {
-    //     randomOffset = Vec2::randomRayOffset();
-    //     cameraRay = currentCamera->getRay(x, y);
-    //     cameraRay.origin.x += randomOffset.x;
-    //     cameraRay.origin.y += randomOffset.y;
-
-    //     color = color + rayTrace(cameraRay, recurse) * randomOffset.magnitude(); // Try different filter
-    // }
-
-    // color = color / SAMPLES;
-    */
 
     Color color = rayTrace(cameraRay, recurse);
     color.clamp();
