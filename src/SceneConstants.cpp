@@ -42,7 +42,7 @@ const Color HORIZON_SUN_COLOR   (255, 150, 100);
 const Color HORIZON_SKY_COLOR   (100, 104, 255);
 const Color HORIZON_COLOR       (255, 120, 60);
 
-const Color MIDNIGHT_MOON_COLOR (150, 150, 150);
+const Color MIDNIGHT_MOON_COLOR (180, 165, 130);
 const Color MIDNIGHT_SKY_COLOR  (13, 13, 56);
 const Color MIDNIGHT_HOR_COLOR  (10, 10, 80);
 
@@ -188,7 +188,7 @@ const Material WHITE_LIGHT_MAT(WHITE);
 
 constexpr float SUN_SIZE  = 1.0f;
 constexpr float MOON_SIZE = 0.3f;
-constexpr bool  IS_SUN    = true; // Changes skymoedl type
+constexpr bool  IS_SUN    = true; // Changes skymodel type between sun and moon
 
 const Atmosphere HIGH_NOON (HIGH_NOON_LIGHT, SUN_SIZE, SKY_COLOR, NORM_HORIZON_COLOR, IS_SUN);
 const Atmosphere SUN_SET   (HORIZON_DIR_LIGHT, SUN_SIZE, HORIZON_SKY_COLOR, HORIZON_COLOR, IS_SUN);

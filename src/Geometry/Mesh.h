@@ -9,10 +9,13 @@
 
 struct Mesh {
     AABB aabb;
+    std::vector<Triangle> triangles;
     std::vector<Surface*> surfaces;
     static bool wireframeAABB;
 
     Mesh() = default;
+
+    Mesh(std::vector<Triangle>&& triangles);
 
     Mesh(std::vector<Surface*>&& surfaces);
 

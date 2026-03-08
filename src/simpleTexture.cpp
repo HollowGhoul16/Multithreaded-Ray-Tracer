@@ -6,7 +6,8 @@
 #include <iostream>
 #include <future>
 
-#include "Geometry/MeshLoader.h"
+#include "Resources/ResourceManager.h"
+// #include "Geometry/MeshLoader.h"
 #include "Renderer/Scene.h"
 #include "Core/ThreadPool.h"
 #include "Core/Utils.h"
@@ -77,6 +78,8 @@ int main()
         std::cout << "Error.\n";
     }
 
+    ResourceManager resourceManager;
+
     std::vector<Mesh> meshes;
     // std::vector<Surface*> snowmanSurfaces;
     std::vector<Surface*> mirrorCubeSurfaces;
@@ -141,11 +144,13 @@ int main()
 
     // Import Models
     Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 0));
-    Mesh cube = loadObj("../models/cube.obj", cubeModelMatrix, MIRROR_MAT);
+    MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
+    Mesh cube = cubeData.makeInstance(cubeModelMatrix, MIRROR_MAT);
     meshes.push_back(std::move(cube));
 
     Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
-    Mesh pawn = loadObj("../models/pawn.obj", pawnModelMatrix, RED_MAT);
+    MeshData pawnData = resourceManager.loadObj("../models/pawn.obj");
+    Mesh pawn = pawnData.makeInstance(pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
 
     // Lights

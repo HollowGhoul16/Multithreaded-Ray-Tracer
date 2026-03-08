@@ -1,6 +1,6 @@
-#include "MeshLoader.h"
+#include "ObjParser.h"
 
-Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& mat)
+MeshData parseObj(const std::string& path)
 {
     ObjFormat fileFormat = ObjFormat::Invalid;
     std::ifstream obj;
@@ -10,7 +10,7 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
     std::vector<float> vertexTextCoords;
     std::vector<float> vertexNormals;
 
-    std::vector<Surface*> triangles;
+    std::vector<Triangle> triangles;
     Vec3 triangleVerts[3];
     Vec2 textureCoords[3];
     Vec3 triangleNorms[3];
@@ -50,9 +50,9 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
     }
 
     if(fileFormat == ObjFormat::Invalid) {
-        std::cout << "Error when importing mesh from path: " << path << "\n";
-        std::cout << "Returning from function with empty mesh.\n";
-        return Mesh();
+        std::cerr << "Error when importing mesh from path: " << path << "\n";
+        std::cerr << "Returning from function with empty mesh.\n";
+        return MeshData(std::move(std::make_shared<std::vector<Triangle>>()));;
     }
 
     obj.clear();
@@ -97,7 +97,7 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
 
                         v = Vec3(verts[coordIndex], verts[coordIndex + 1], verts[coordIndex + 2]);
 
-                        triangleVerts[i] = modelMatrix.matvec(v);
+                        triangleVerts[i] = v;
 
                     break; case ObjFormat::PT:
                         coordIndex = (std::stoi(buffer.substr(0, firstSlash)) - 1) * 3;
@@ -106,7 +106,7 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
                         v = Vec3(verts[coordIndex], verts[coordIndex + 1], verts[coordIndex + 2]);
                         t = Vec2(vertexTextCoords[textCoordIndex], vertexTextCoords[textCoordIndex + 1]);
                         
-                        triangleVerts[i] = modelMatrix.matvec(v);
+                        triangleVerts[i] = v;
                         textureCoords[i] = t;
 
                     break; case ObjFormat::PN:
@@ -116,7 +116,7 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
                         v = Vec3(verts[coordIndex], verts[coordIndex + 1], verts[coordIndex + 2]);
                         n = Vec3(vertexNormals[normalIndex], vertexNormals[normalIndex + 1], vertexNormals[normalIndex + 2]);
 
-                        triangleVerts[i] = modelMatrix.matvec(v);
+                        triangleVerts[i] = v;
                         triangleNorms[i] = n.normalize();
 
                     break; case ObjFormat::PTN:
@@ -128,7 +128,7 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
                         t = Vec2(vertexTextCoords[textCoordIndex], vertexTextCoords[textCoordIndex + 1]);
                         n = Vec3(vertexNormals[normalIndex], vertexNormals[normalIndex + 1], vertexNormals[normalIndex + 2]);
 
-                        triangleVerts[i] = modelMatrix.matvec(v);
+                        triangleVerts[i] = v;
                         textureCoords[i] = t;
                         triangleNorms[i] = n.normalize();
 
@@ -136,14 +136,16 @@ Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& m
                 }
             }
 
-            Surface* triangle = new Triangle(triangleVerts, textureCoords, triangleNorms, mat);
+            Triangle triangle = Triangle(triangleVerts, textureCoords, triangleNorms, Material());
             triangles.push_back(triangle);
         }
     }
 
     obj.close();
 
-    Mesh mesh(std::move(triangles));
+    std::shared_ptr<std::vector<Triangle>> trianglesPtr = std::make_shared<std::vector<Triangle>>(std::move(triangles));
 
-    return mesh;
+    MeshData meshData(std::move(trianglesPtr));
+
+    return meshData;
 }

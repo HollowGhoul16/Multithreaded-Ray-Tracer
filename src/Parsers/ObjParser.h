@@ -4,11 +4,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
 
-#include "Mesh.h"
+#include "Resources/MeshData.h"
 
 // If .obj file has: P = Position, T = Texture, N = Normal
-enum ObjFormat {
+enum class ObjFormat {
     P,
     PT,
     PN,
@@ -16,4 +17,4 @@ enum ObjFormat {
     Invalid
 };
 
-Mesh loadObj(const std::string& path, const Mat4& modelMatrix, const Material& mat); // Supports only triangles
+MeshData parseObj(const std::string& path); // Supports only triangles

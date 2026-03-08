@@ -22,7 +22,9 @@ include_directories(
 add_executable(Main
         src/simpleTexture.cpp
         src/SceneConstants.cpp
-        src/Geometry/MeshLoader.cpp
+        src/Resources/ResourceManager.cpp
+        src/Resources/MeshData.cpp
+        src/Parsers/ObjParser.cpp
         src/Core/Utils.cpp
         )
 

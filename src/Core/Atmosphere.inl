@@ -41,7 +41,7 @@ inline Color Atmosphere::moonModel(const Ray& ray) const
 {
     Vec3 rayDir = ray.direction;
     Vec3 moonDir = -luminary.direction;
-    float cosTheta = rayDir.dot(moonDir);
+    float cosTheta = std::max(rayDir.dot(moonDir), 0.0f);
     bool hitMoon = (cosTheta >= std::sin((luminarySize / .18f)));
 
     if(hitMoon) {
@@ -52,8 +52,10 @@ inline Color Atmosphere::moonModel(const Ray& ray) const
         float horizonScalar = -1 * (std::max(Vec3(0.0f, 1.0f, 0.0f).dot(rayDir), 0.0f) - 1); // Scale based off of ray's y-value
         horizonScalar = std::pow(horizonScalar, 4.0f);
 
-        float skyGradient = 1 + cosTheta * cosTheta;
-        Color skyBlend = Color::lerp((skyColor * skyGradient), horizonColor, horizonScalar);
-        return skyBlend;
+        Color skyBlend = Color::lerp(skyColor, horizonColor, horizonScalar);
+
+        float moonBlend = std::pow(Color::smoothStep(.8, 1.2, cosTheta), 4);
+
+        return Color::lerp(skyBlend, luminary.color, moonBlend);
     }
 }

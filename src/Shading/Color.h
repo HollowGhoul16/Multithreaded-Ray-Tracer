@@ -13,6 +13,8 @@ struct Color {
 
     static Color lerp(const Color& color1, const Color& color2, const float& scalar);
 
+    static float smoothStep(const float& min, const float& max, const float& value);
+
     void toSRGB();
 
     void clamp();

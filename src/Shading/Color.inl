@@ -15,6 +15,12 @@ inline Color Color::lerp(const Color& color1, const Color& color2, const float& 
     return color1 * (1 - scalar) + color2 * scalar;
 }
 
+inline float Color::smoothStep(const float& min, const float& max, const float& value)
+{
+    float t = std::min(std::max((value - min) / (max - min), 0.0f), 1.0f);
+    return t * t * (3 - 2 * t);
+}
+
 // Go from linear [0, 1] range to [0, 255] for image display
 inline void Color::toSRGB()
 {
