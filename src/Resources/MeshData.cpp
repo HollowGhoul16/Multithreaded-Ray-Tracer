@@ -8,6 +8,8 @@ Mesh MeshData::makeInstance(const Mat4& modelMatrix, const Material& mat) const
     std::vector<Triangle> newTriangles;
     std::vector<Triangle>& triangles = *(this->triangles);
 
+    Mat3 normalMatrix = modelMatrix.normalMatrix();
+
     Vec3 triangleVerts[3];
     Vec2 textureCoords[3];
     Vec3 triangleNorms[3];
@@ -16,7 +18,7 @@ Mesh MeshData::makeInstance(const Mat4& modelMatrix, const Material& mat) const
         for(int i = 0; i < 3; ++i) {
             triangleVerts[i] = modelMatrix.matvec(triangle.vertices[i]);
             textureCoords[i] = triangle.texCoords[i];
-            triangleNorms[i] = triangle.normals[i];
+            triangleNorms[i] = (normalMatrix.matvec(triangle.normals[i])).normalize();
         }
 
         newTriangles.push_back(Triangle(triangleVerts, textureCoords, triangleNorms, mat));

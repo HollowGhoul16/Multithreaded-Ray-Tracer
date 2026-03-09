@@ -3,6 +3,8 @@
 #include <math.h>
 #include <random>
 
+struct Vec4;
+
 struct Vec2 {
     float x, y;
 
@@ -23,6 +25,8 @@ struct Vec3 {
     constexpr Vec3(const float& value);
 
     constexpr Vec3(const float& x, const float& y, const float& z);
+
+    constexpr Vec3(const Vec4& vec4);
 
     static Vec3 randomSphereUnitVector();
 

@@ -143,9 +143,9 @@ int main()
     meshes.push_back(std::move(groundSphere));
 
     // Import Models
-    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 0));
+    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 300, -160, 0));
     MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
-    Mesh cube = cubeData.makeInstance(cubeModelMatrix, MIRROR_MAT);
+    Mesh cube = cubeData.makeInstance(cubeModelMatrix, OFF_WHITE_MAT);
     meshes.push_back(std::move(cube));
 
     Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
@@ -156,12 +156,12 @@ int main()
     // Lights
     std::vector<Light*> lights; // intensity needs to be huge for point lights?
 
-    Surface* lightSphere1 = new Sphere(Vec3(40, 60, -170), 3.0f, WHITE_LIGHT_MAT);
-    Light* pointlight1  = new PointLight(Color(255, 255, 255), Vec3(40, 60, -170), 1000, lightSphere1);
+    Surface* lightSphere1 = new Sphere(Vec3(40, 60, -170), 3.0f, RED_LIGHT_MAT);
+    Light* pointlight1  = new PointLight(RED, Vec3(40, 60, -170), 1000, lightSphere1);
     lights.push_back(pointlight1);
 
-    Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, WHITE_LIGHT_MAT);
-    Light* pointlight2  = new PointLight(Color(255, 255, 255), Vec3(0, 50, -250), 1000, lightSphere2);
+    Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, GREEN_LIGHT_MAT);
+    Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -250), 1000, lightSphere2);
     lights.push_back(pointlight2);
 
     scene = new Scene(MIDNIGHT, std::move(meshes), std::move(lights), cameras);

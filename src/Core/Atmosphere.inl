@@ -37,6 +37,7 @@ inline Color Atmosphere::sunModel(const Ray& ray) const
     return Color::lerp(skyBlend, sunBlend, sunScalar);
 }
 
+// TODO: Figure out sky flickering
 inline Color Atmosphere::moonModel(const Ray& ray) const
 {
     Vec3 rayDir = ray.direction;

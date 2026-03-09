@@ -5,6 +5,30 @@
 constexpr Mat3::Mat3(const Vec3& u, const Vec3& v, const Vec3& w)
                     : u(u), v(v), w(w) {};
 
+constexpr Mat3::Mat3(const Mat4& mat4)
+                    : u(Vec3(mat4.x)), v(Vec3(mat4.y)), w(Vec3(mat4.z)) {}
+
+inline Mat3 Mat3::inverse() const
+{
+    Vec3 r0 = v.cross(w);
+    Vec3 r1 = w.cross(u);
+    Vec3 r2 = u.cross(v);
+
+    float invDet = 1.0f / u.dot(r0); // Assume invertible (no safety checks)
+
+    return Mat3(Vec3(r0.x, r1.x, r2.x),
+                Vec3(r0.y, r1.y, r2.y),
+                Vec3(r0.z, r1.z, r2.z))
+           * invDet;
+}
+
+inline Mat3 Mat3::transpose() const
+{
+    return Mat3(Vec3(u.x, v.x, w.x),
+                Vec3(u.y, v.y, w.y),
+                Vec3(u.z, v.z, w.z));
+}
+
 inline Vec3 Mat3::matvec(const Vec3& vec) const 
 {
     Vec3 col1 = u * vec.x;
@@ -21,6 +45,13 @@ inline Mat3 Mat3::matmat(const Mat3& otherM) const
     return Mat3(matvec(otherM.u), matvec(otherM.v), matvec(otherM.w));
 }
 
+inline Mat3 Mat3::operator*(const float& scalar) const
+{
+    return Mat3(u * scalar,
+                v * scalar,
+                w * scalar);
+}
+
 inline void Mat3::orthoNormalize() 
 {
     u = u.normalize();
@@ -34,6 +65,11 @@ inline void Mat3::orthoNormalize()
 
 constexpr Mat4::Mat4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w)
                     : x(x), y(y), z(z), w(w) {};
+
+inline Mat3 Mat4::normalMatrix() const
+{
+    return Mat3(*this).inverse().transpose();
+}
 
 inline Vec3 Mat4::matvec(const Vec3& vec) const 
 {

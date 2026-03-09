@@ -23,6 +23,7 @@ constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for 
 // Color Constants
 
 const Color WHITE               (255, 255, 255);
+const Color OFF_WHITE           (245, 245, 245);
 const Color GREY                (128, 128, 128);
 const Color RED                 (255, 0, 0);
 const Color GREEN               (0, 255, 0);
@@ -64,6 +65,17 @@ const Material DEBUG_MAT(
     DIF_COEFF, 
     SPE_COEFF, 
     SPE_EXP, 
+    !IS_GLAZED
+);
+
+const Material OFF_WHITE_MAT(
+    OFF_WHITE,
+    OFF_WHITE,
+    WHITE,
+    AMB_COEFF,
+    DIF_COEFF,
+    SPE_COEFF,
+    SPE_EXP,
     !IS_GLAZED
 );
 
@@ -183,6 +195,9 @@ const DirectionalLight MIDNIGHT_LIGHT    (MIDNIGHT_MOON_COLOR, Vec3(0, -1, -5), 
 // Point Light Materials (just colors)
 
 const Material WHITE_LIGHT_MAT(WHITE);
+const Material RED_LIGHT_MAT(RED);
+const Material BLUE_LIGHT_MAT(BLUE);
+const Material GREEN_LIGHT_MAT(GREEN);
 
 // Atmosphere Constants
 

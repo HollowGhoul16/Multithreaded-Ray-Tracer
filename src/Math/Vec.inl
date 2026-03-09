@@ -32,6 +32,9 @@ constexpr Vec3::Vec3(const float& value)
 constexpr Vec3::Vec3(const float& x, const float& y, const float& z)
                     : x(x), y(y), z(z) {}
 
+constexpr Vec3::Vec3(const Vec4& vec4)
+                    : x(vec4.x), y(vec4.y), z(vec4.z) {}
+
 inline Vec3 Vec3::randomSphereUnitVector()
 {
     static const int ITERATE_LIMIT = 100;
