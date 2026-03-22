@@ -39,8 +39,8 @@ inline Vec3 Vec3::randomSphereUnitVector()
 {
     static const int ITERATE_LIMIT = 100;
     static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    thread_local std::mt19937 gen(rd());
+    thread_local std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
     Vec3 randVec = Vec3(dist(gen), dist(gen), dist(gen));
 
@@ -141,6 +141,9 @@ constexpr Vec4::Vec4(const float& value)
 
 constexpr Vec4::Vec4(const float& x, const float& y, const float& z, const float& w)
                     : x(x), y(y), z(z), w(w) {}
+
+constexpr Vec4::Vec4(const Vec3& vec3)
+                    : x(vec3.x), y(vec3.y), z(vec3.z), w(0) {}
 
 inline float Vec4::magnitude() const 
 {

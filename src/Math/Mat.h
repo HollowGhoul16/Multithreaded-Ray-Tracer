@@ -33,6 +33,10 @@ struct Mat4 {
 
     constexpr Mat4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w);
 
+    static Mat4 identity();
+
+    Mat4 inverseModel() const;
+
     Mat3 normalMatrix() const; // For transforming normal vectors
 
     Vec3 matvec(const Vec3& vec) const; // Uses 1 for w value for use of homogeneous coordinates

@@ -7,7 +7,6 @@
 #include <future>
 
 #include "Resources/ResourceManager.h"
-// #include "Geometry/MeshLoader.h"
 #include "Renderer/Scene.h"
 #include "Core/ThreadPool.h"
 #include "Core/Utils.h"
@@ -140,15 +139,20 @@ int main()
     groundSphereSurface.push_back(new Sphere(Vec3(0, -7000, -160), 7000, BLUE_MAT));
 
     Mesh groundSphere(std::move(groundSphereSurface));
+    groundSphere.material = BLUE_MAT;
     meshes.push_back(std::move(groundSphere));
 
     // Import Models
-    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 300, -160, 0));
+    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(-200, 300, -160, 1));
+    Mat4 cubeModelMatrix2(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(200, 300, -160, 1));
     MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
     Mesh cube = cubeData.makeInstance(cubeModelMatrix, OFF_WHITE_MAT);
-    meshes.push_back(std::move(cube));
+    Mesh cube2 = cubeData.makeInstance(cubeModelMatrix2, MIRROR_MAT);
 
-    Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 0));
+    meshes.push_back(std::move(cube));
+    meshes.push_back(std::move(cube2));    
+
+    Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 1));
     MeshData pawnData = resourceManager.loadObj("../models/pawn.obj");
     Mesh pawn = pawnData.makeInstance(pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
@@ -156,15 +160,15 @@ int main()
     // Lights
     std::vector<Light*> lights; // intensity needs to be huge for point lights?
 
-    Surface* lightSphere1 = new Sphere(Vec3(40, 60, -170), 3.0f, RED_LIGHT_MAT);
-    Light* pointlight1  = new PointLight(RED, Vec3(40, 60, -170), 1000, lightSphere1);
-    lights.push_back(pointlight1);
+    // Surface* lightSphere1 = new Sphere(Vec3(40, 60, -170), 3.0f, RED_LIGHT_MAT);
+    // Light* pointlight1  = new PointLight(RED, Vec3(40, 60, -170), 1000, lightSphere1);
+    // // lights.push_back(pointlight1);
 
-    Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, GREEN_LIGHT_MAT);
-    Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -250), 1000, lightSphere2);
-    lights.push_back(pointlight2);
+    // Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, GREEN_LIGHT_MAT);
+    // Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -250), 1000, lightSphere2);
+    // lights.push_back(pointlight2);
 
-    scene = new Scene(MIDNIGHT, std::move(meshes), std::move(lights), cameras);
+    scene = new Scene(SUN_SET, std::move(meshes), std::move(lights), cameras);
 
     // glfw: initialize and configure
     // ------------------------------

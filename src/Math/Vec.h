@@ -64,6 +64,8 @@ struct Vec4 {
 
     constexpr Vec4(const float& x, const float& y, const float& z, const float& w);
 
+    constexpr Vec4(const Vec3& vec3);
+
     float magnitude() const;
 
     Vec4 normalize() const;

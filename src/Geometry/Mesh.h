@@ -3,21 +3,25 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <memory>
 
 #include "Acceleration/AABB.h"
+#include "Transform.h"
 #include "Surfaces.h"
 
 struct Mesh {
     AABB aabb;
-    std::vector<Triangle> triangles;
+    std::shared_ptr<std::vector<Triangle>> triangles;
     std::vector<Surface*> surfaces;
+    Transform transform;
+    Material material;
     static bool wireframeAABB;
 
     Mesh() = default;
 
-    Mesh(std::vector<Triangle>&& triangles);
+    Mesh(const std::shared_ptr<std::vector<Triangle>>& triangles, const Mat4& modelMatrix = Mat4::identity());
 
-    Mesh(std::vector<Surface*>&& surfaces);
+    Mesh(std::vector<Surface*>&& surfaces, const Mat4& modelMatrix = Mat4::identity());
 
     Mesh(Mesh&& otherMesh);
 

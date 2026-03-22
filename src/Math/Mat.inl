@@ -14,7 +14,7 @@ inline Mat3 Mat3::inverse() const
     Vec3 r1 = w.cross(u);
     Vec3 r2 = u.cross(v);
 
-    float invDet = 1.0f / u.dot(r0); // Assume invertible (no safety checks)
+    float invDet = 1.0f / u.dot(r0); // Assume invertible (no checks)
 
     return Mat3(Vec3(r0.x, r1.x, r2.x),
                 Vec3(r0.y, r1.y, r2.y),
@@ -65,6 +65,32 @@ inline void Mat3::orthoNormalize()
 
 constexpr Mat4::Mat4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w)
                     : x(x), y(y), z(z), w(w) {};
+
+inline Mat4 Mat4::identity()
+{
+    Mat4 identity;
+
+    identity.x.x = 1;
+    identity.y.y = 1;
+    identity.z.z = 1;
+    identity.w.w = 1;
+
+    return identity;
+}
+
+inline Mat4 Mat4::inverseModel() const
+{
+    Mat4 inverseModel;
+    Mat3 R = Mat3(*this).inverse();
+
+    inverseModel.x = Vec4(R.u);
+    inverseModel.y = Vec4(R.v);
+    inverseModel.z = Vec4(R.w);
+    inverseModel.w = Vec4(-(R.matvec(Vec3(w))));
+    inverseModel.w.w = 1;
+
+    return inverseModel;
+}
 
 inline Mat3 Mat4::normalMatrix() const
 {
