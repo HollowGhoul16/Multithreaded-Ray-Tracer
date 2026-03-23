@@ -6,6 +6,12 @@ MeshData parseObj(const std::string& path)
     std::ifstream obj;
     std::string buffer;
 
+    float xMax, yMax, zMax;
+    xMax = yMax = zMax = std::numeric_limits<float>::lowest();
+
+    float xMin, yMin, zMin;
+    xMin = yMin = zMin = std::numeric_limits<float>::max();
+
     std::vector<float> verts;
     std::vector<float> vertexTextCoords;
     std::vector<float> vertexNormals;
@@ -136,12 +142,46 @@ MeshData parseObj(const std::string& path)
                 }
             }
 
+            // If no vertex normals, default to using face normals (geometric shading)
+            if(fileFormat == ObjFormat::P || fileFormat == ObjFormat::PT) {
+                for(int i = 0; i < 3; ++i) {
+                    triangleNorms[i] = (triangleVerts[1] - triangleVerts[0]).cross((triangleVerts[2] - triangleVerts[1]));
+                }
+            }
+
             Triangle triangle = Triangle(triangleVerts, textureCoords, triangleNorms, Material());
             triangles.push_back(triangle);
+
+            for(int i = 0; i < 3; ++i) {
+                xMax = std::max(xMax, triangleVerts[i].x);
+                yMax = std::max(yMax, triangleVerts[i].y);
+                zMax = std::max(zMax, triangleVerts[i].z);
+
+                xMin = std::min(xMin, triangleVerts[i].x);
+                yMin = std::min(yMin, triangleVerts[i].y);
+                zMin = std::min(zMin, triangleVerts[i].z);
+            }
         }
     }
 
     obj.close();
+
+    float xNormalize = std::max(std::abs(xMax), std::abs(xMin));
+    float yNormalize = std::max(std::abs(yMax), std::abs(yMin));
+    float zNormalize = std::max(std::abs(zMax), std::abs(zMin));
+
+    float max = std::abs(std::max(std::max(xNormalize, yNormalize), zNormalize));
+
+    // Normalize each vertex dependent on longest "half"-axis (either the negative or positive side)
+    for(Triangle& triangle : triangles) {
+        for(int i = 0; i < 3; ++i) {
+            triangle.vertices[i].x /= max;
+            triangle.vertices[i].y /= max;
+            triangle.vertices[i].z /= max;
+        }
+
+        for(int i = 0; i < 3; ++i) triangle.edges[i] = triangle.vertices[(i + 1) % 3] - triangle.vertices[i];
+    }
 
     std::shared_ptr<std::vector<Triangle>> trianglesPtr = std::make_shared<std::vector<Triangle>>(std::move(triangles));
 

@@ -143,8 +143,8 @@ int main()
     meshes.push_back(std::move(groundSphere));
 
     // Import Models
-    Mat4 cubeModelMatrix(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(-200, 300, -160, 1));
-    Mat4 cubeModelMatrix2(Vec4(130, 0, 0, 0), Vec4(0, 125, 0, 0), Vec4(0, 0, 100, 0), Vec4(200, 300, -160, 1));
+    Mat4 cubeModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 50, -200, 1));
+    Mat4 cubeModelMatrix2(Vec4(100, 0, 0, 0), Vec4(0, 100, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 1));
     MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
     Mesh cube = cubeData.makeInstance(cubeModelMatrix, OFF_WHITE_MAT);
     Mesh cube2 = cubeData.makeInstance(cubeModelMatrix2, MIRROR_MAT);
@@ -152,7 +152,7 @@ int main()
     meshes.push_back(std::move(cube));
     meshes.push_back(std::move(cube2));    
 
-    Mat4 pawnModelMatrix(Vec4(0.1, 0, 0, 0), Vec4(0, 0.1, 0, 0), Vec4(0, 0, 0.1, 0), Vec4(0, 52, -200, 1));
+    Mat4 pawnModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 150, -200, 1));
     MeshData pawnData = resourceManager.loadObj("../models/pawn.obj");
     Mesh pawn = pawnData.makeInstance(pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
