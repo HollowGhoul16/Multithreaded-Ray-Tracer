@@ -9,6 +9,7 @@
 #include "Resources/ResourceManager.h"
 #include "Renderer/Scene.h"
 #include "Core/ThreadPool.h"
+#include "Core/Screenshot.h"
 #include "Core/Utils.h"
 
 #include "SceneConstants.cpp"
@@ -31,6 +32,10 @@ Camera* cameras[2] = {
 
 Scene* scene = nullptr;
 ThreadPool* threadPoolptr = nullptr;
+
+unsigned char* imageData = nullptr;
+unsigned int imageWidth, imageHeight;
+
 bool Mesh::wireframeAABB = false;
 
 // From https://www.glfw.org/docs/3.3/input_guide.html
@@ -39,6 +44,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     // Toggles the camera type
 
     if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
+
+    // Screenshot
+
+    if (key == GLFW_KEY_RIGHT_SHIFT && action == GLFW_PRESS) Screenshot::screenshot(imageData, imageWidth, imageHeight);
 
     // Toggle Debug AABB
 
@@ -293,9 +302,9 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    const unsigned int width  = textureSideLength; // keep it in powers of 2!
-    const unsigned int height = textureSideLength; // keep it in powers of 2!
-    unsigned char *image = new unsigned char[width * height * 3]; // TODO: attempt dynamic texture sizing
+    imageWidth  = textureSideLength; // keep it in powers of 2!
+    imageHeight = textureSideLength; // keep it in powers of 2!
+    imageData = new unsigned char[imageWidth * imageHeight * 3]; // TODO: attempt dynamic texture sizing
 
     ThreadPool threadPool(MAX_RENDER_THREAD_COUNT);
     threadPoolptr = &threadPool;
@@ -334,11 +343,11 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        rayTrace(scene, image, width, height, threadPool);
+        rayTrace(scene, imageData, imageWidth, imageHeight, threadPool);
 
-        if (image)
+        if (imageData)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else
@@ -363,7 +372,7 @@ int main()
     // ------------------------------------------------------------------
     glfwTerminate();
 
-    delete[] image;
+    delete[] imageData;
     delete scene;
 
     return 0;

@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <future>
+#include <iomanip>
 #include <fstream>
 #include <iostream>
 
@@ -9,6 +10,8 @@ extern std::atomic<int> currentFrameCount;
 extern std::atomic<bool> continueFPS;
 
 void printFPS(std::promise<bool>&& signalCompleteFPS); // Updates every quarter second
+
+std::string localTimestamp();
 
 std::string readShaderFile(const std::string& path);
 

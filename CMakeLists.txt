@@ -25,6 +25,7 @@ add_executable(Main
         src/Resources/ResourceManager.cpp
         src/Resources/MeshData.cpp
         src/Parsers/ObjParser.cpp
+        src/Core/Screenshot.cpp
         src/Core/Utils.cpp
         )
 
