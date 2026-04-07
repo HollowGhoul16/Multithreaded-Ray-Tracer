@@ -87,4 +87,6 @@ struct Vec4 {
     Vec4 operator-() const;
 };
 
+Vec4 operator/(const float& scalar, const Vec4& vec);
+
 #include "Vec.inl"

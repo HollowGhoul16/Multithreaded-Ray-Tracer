@@ -22,9 +22,17 @@ constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for 
 
 // Transformation Matrix Constants
 
-constexpr Mat4 SHIFT_X = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(2, 0, 0, 1));
-constexpr Mat4 SHIFT_Y = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 2, 0, 1));
-constexpr Mat4 SHIFT_Z = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 2, 1));
+constexpr Mat4 SHIFT_X    (Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(2, 0, 0, 1));
+constexpr Mat4 SHIFT_Y    (Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 2, 0, 1));
+constexpr Mat4 SHIFT_Z    (Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 2, 1));
+
+constexpr Mat4 SCALE_X    (Vec4(1.01, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 0, 1));
+constexpr Mat4 SCALE_Y    (Vec4(1, 0, 0, 0), Vec4(0, 1.01, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 0, 1));
+constexpr Mat4 SCALE_Z    (Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1.01, 0), Vec4(0, 0, 0, 1));
+
+const Mat4 ROTATION_PITCH (Vec4(1, 0, 0, 0), Vec4(0, std::cos(THETA), -std::sin(THETA), 0), Vec4(0, std::sin(THETA), std::cos(THETA), 0), Vec4(0, 0, 0, 1));
+const Mat4 ROTATION_YAW   (Vec4(std::cos(THETA), 0, std::sin(THETA), 0), Vec4(0, 1, 0, 0), Vec4(-std::sin(THETA), 0, std::cos(THETA), 0), Vec4(0, 0, 0, 1));
+const Mat4 ROTATION_ROLL  (Vec4(std::cos(THETA), std::sin(THETA), 0, 0), Vec4(-std::sin(THETA), std::cos(THETA), 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 0, 1));
 
 // Color Constants
 

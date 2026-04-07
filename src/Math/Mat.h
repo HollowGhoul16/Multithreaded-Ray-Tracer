@@ -50,4 +50,6 @@ struct Mat4 {
     Mat4 operator-() const;
 };
 
+Mat4 operator/(const float& scalar, const Mat4& mat);
+
 #include "Mat.inl"

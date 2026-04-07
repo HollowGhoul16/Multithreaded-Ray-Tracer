@@ -140,3 +140,13 @@ inline Mat4 Mat4::operator-() const
 {
     return Mat4(x, y, z, -w);
 }
+
+// Free functions for Mat4
+
+inline Mat4 operator/(const float& scalar, const Mat4& mat)
+{
+    return Mat4(scalar / mat.x,
+                scalar / mat.y,
+                scalar / mat.z,
+                scalar / mat.w);
+}

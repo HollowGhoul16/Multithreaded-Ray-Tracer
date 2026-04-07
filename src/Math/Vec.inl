@@ -217,10 +217,10 @@ inline Vec4 Vec4::operator-() const
 
 // Free functions for Vec4
 
-inline Vec4 operator/(const float& scalar, const Vec4& vec)
+inline Vec4 operator/(const float& scalar, const Vec4& vec) // Prevents division by 0
 {
-    return Vec4(scalar / vec.x,
-                scalar / vec.y,
-                scalar / vec.z,
-                scalar / vec.w);
+    return Vec4(vec.x ? scalar / vec.x : 0,
+                vec.y ? scalar / vec.y : 0,
+                vec.z ? scalar / vec.z : 0,
+                vec.w ? scalar / vec.w : 0);
 }

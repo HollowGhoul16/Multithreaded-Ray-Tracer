@@ -47,7 +47,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 {
     // Toggles the camera type
 
-    if (key == GLFW_KEY_P && action == GLFW_PRESS) scene->switchCamera();
+    if (key == GLFW_KEY_X && action == GLFW_PRESS) scene->switchCamera();
 
     // Screenshot
 
@@ -418,28 +418,82 @@ void processInput(GLFWwindow *window)
 
     // Object Controls
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    // Shifts
+
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
         meshSelector.applyTransform(SHIFT_Z);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
         meshSelector.applyTransform(-SHIFT_Z);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
         meshSelector.applyTransform(SHIFT_X);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
         meshSelector.applyTransform(-SHIFT_X);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) {
         meshSelector.applyTransform(SHIFT_Y);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
         meshSelector.applyTransform(-SHIFT_Y);
+    }
+
+    // Scale
+
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        meshSelector.applyTransform(SCALE_X);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+        meshSelector.applyTransform(1.0f / SCALE_X);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+        meshSelector.applyTransform(SCALE_Y);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+        meshSelector.applyTransform(1.0f / SCALE_Y);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+        meshSelector.applyTransform(SCALE_Z);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+        meshSelector.applyTransform(1.0f / SCALE_Z);
+    }
+
+    // Rotations
+
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+        meshSelector.applyTransform(ROTATION_PITCH);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SEMICOLON) == GLFW_PRESS) {
+        meshSelector.applyTransform(-ROTATION_PITCH);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+        meshSelector.applyTransform(ROTATION_YAW);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        meshSelector.applyTransform(-ROTATION_YAW);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+        meshSelector.applyTransform(ROTATION_ROLL);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
+        meshSelector.applyTransform(-ROTATION_ROLL);
     }
 
     // Camera Controls
