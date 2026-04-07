@@ -8,6 +8,7 @@
 
 #include "Resources/ResourceManager.h"
 #include "Renderer/Scene.h"
+#include "Core/MeshSelector.h"
 #include "Core/ThreadPool.h"
 #include "Core/Screenshot.h"
 #include "Core/Utils.h"
@@ -38,6 +39,9 @@ unsigned int imageWidth, imageHeight;
 
 bool Mesh::wireframeAABB = false;
 
+MeshSelector meshSelector;
+double mouseX, mouseY;
+
 // From https://www.glfw.org/docs/3.3/input_guide.html
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) // TODO: Create input handler class
 {
@@ -65,6 +69,28 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         size_t currentThreadCount = threadPoolptr->getThreadCount();
         if(currentThreadCount == MAX_RENDER_THREAD_COUNT) return;
         threadPoolptr->setThreadCount(currentThreadCount * 2);
+    }
+}
+
+void mouseCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        float worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
+        float worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+
+        Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
+        if(selectedMesh != nullptr) meshSelector.select(selectedMesh);
+        else meshSelector.deselectAll();
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        float worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
+        float worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+
+        Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
+        if(selectedMesh != nullptr) meshSelector.deselect(selectedMesh);
     }
 }
 
@@ -194,6 +220,7 @@ int main()
     // glfw window creation
     // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", NULL, NULL);
+    glfwSetMouseButtonCallback(window, mouseCallback);
     glfwSetKeyCallback(window, keyCallback);
 
     if (window == NULL)
@@ -388,6 +415,34 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+
+    // Object Controls
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        meshSelector.applyTransform(SHIFT_Z);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        meshSelector.applyTransform(-SHIFT_Z);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        meshSelector.applyTransform(SHIFT_X);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        meshSelector.applyTransform(-SHIFT_X);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        meshSelector.applyTransform(SHIFT_Y);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+        meshSelector.applyTransform(-SHIFT_Y);
+    }
+
+    // Camera Controls
     
     // Shifts
 

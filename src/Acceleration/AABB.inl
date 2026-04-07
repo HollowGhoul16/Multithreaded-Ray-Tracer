@@ -35,15 +35,21 @@ inline HitData AABB::intersection(const Ray &ray, const float& tClosestMax) cons
     if(tHit <= tClosestMax) {
         hitData.hit = true;
         hitData.t = tHit;
-        hitData.point = ray.parametrize(tHit);
     }
 
     return hitData;
 }
 
+inline bool AABB::contains(const Vec3& p) const
+{
+    return (p.x >= min.x && p.x <= max.x) &&
+           (p.y >= min.y && p.y <= max.y) &&
+           (p.z >= min.z && p.z <= max.z);
+}
+
 inline void AABB::constructWireframe()
 {
-    const float thickness = 1.0f;
+    const float thickness = (max.y - min.y) / 80; // TODO: Figure out maybe better scaling method
     const float offset = 0.0f; // TODO: Figure out where to do wireframe intersections for this to work
     const Color DEBUG(255, 0, 255);
     const Material mat = Material(

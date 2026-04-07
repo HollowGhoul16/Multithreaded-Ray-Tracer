@@ -13,9 +13,13 @@ struct Transform {
 
     Ray rayToLocal(const Ray& worldRay) const;
 
+    Vec3 pointToLocal(const Vec3& worldPoint) const;
+
     Vec3 pointToWorld(const Vec3& localPoint) const;
 
     Vec3 normalToWorld(const Vec3& localNormal) const;
+
+    void applyTransform(const Mat4& transformation);
 
     void update();
 };

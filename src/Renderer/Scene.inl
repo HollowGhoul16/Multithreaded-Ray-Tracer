@@ -13,6 +13,31 @@ inline Scene::~Scene()
     for (Camera* camera : cameras) delete camera;
 }
 
+inline Mesh* Scene::selectMesh(const float& x, const float& y)
+{
+    Ray ray = currentCamera->getRay(x, y);
+
+    Mesh* closestMesh = nullptr;
+    float tClosestSurface = std::numeric_limits<float>::max();
+
+    for(Mesh& mesh : meshes) {
+        if(!mesh.AABBcontains(ray.origin)) {
+            HitData meshHitData = mesh.AABBintersection(ray, tClosestSurface);
+            if(!meshHitData.hit || meshHitData.t > tClosestSurface) continue;
+        }
+
+        HitData surfaceHitData = mesh.intersection(ray);
+        if(!surfaceHitData.hit) continue;
+
+        if(surfaceHitData.t < tClosestSurface) {
+            tClosestSurface = surfaceHitData.t;
+            closestMesh = &mesh;
+        }
+    }
+
+    return closestMesh;
+}
+
 inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const
 {
     Ray cameraRay = currentCamera->getRay(x, y);
@@ -27,19 +52,18 @@ inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) c
 inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 {
     float tClosestSurface = std::numeric_limits<float>::max();
-    float tClosestMesh = std::numeric_limits<float>::max();
     HitData hitData;
 
     for(const Mesh& mesh : meshes) {
-        HitData meshHitData = mesh.aabb.intersection(ray, tClosestMesh);
-
-        if(!meshHitData.hit) continue;
+        if(!mesh.AABBcontains(ray.origin)) {
+            HitData meshHitData = mesh.AABBintersection(ray, tClosestSurface);
+            if(!meshHitData.hit || meshHitData.t > tClosestSurface) continue;
+        }
 
         HitData surfaceHitData = mesh.intersection(ray);
         if(!surfaceHitData.hit) continue;
 
         if(surfaceHitData.t < tClosestSurface) {
-            tClosestMesh = meshHitData.t;
             tClosestSurface = surfaceHitData.t;
             hitData = surfaceHitData;
         }

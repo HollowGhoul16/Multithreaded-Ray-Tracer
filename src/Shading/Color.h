@@ -23,6 +23,8 @@ struct Color {
 
     Color operator/(const float& coeff) const;
 
+    Color operator-(const float& val) const;
+
     Color operator*(const Color& otherColor) const;
 
     Color operator+(const Color& otherColor) const;

@@ -20,6 +20,12 @@ const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
 constexpr float SHIFT = 2.5f;
 constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for the cmath functions
 
+// Transformation Matrix Constants
+
+constexpr Mat4 SHIFT_X = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(2, 0, 0, 1));
+constexpr Mat4 SHIFT_Y = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 2, 0, 1));
+constexpr Mat4 SHIFT_Z = Mat4(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), Vec4(0, 0, 2, 1));
+
 // Color Constants
 
 const Color WHITE               (255, 255, 255);

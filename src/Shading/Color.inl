@@ -57,6 +57,15 @@ inline Color Color::operator/(const float& coeff) const
     return color;
 }
 
+inline Color Color::operator-(const float& val) const
+{
+    Color color;
+    color.r = r - val;
+    color.g = g - val;
+    color.b = b - val;
+    return color;
+}
+
 inline Color Color::operator*(const Color& otherColor) const 
 {
     Color color;

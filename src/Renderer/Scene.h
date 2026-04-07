@@ -20,6 +20,8 @@ struct Scene {
 
     ~Scene();
 
+    Mesh* selectMesh(const float& x, const float& y);
+
     Color getPixelColor(const float& x, const float& y, int recurse = 100) const;
 
     Color rayTrace(Ray& ray, int& recurse) const;

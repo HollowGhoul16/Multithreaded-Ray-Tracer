@@ -9,9 +9,6 @@ inline Mesh::Mesh(const std::shared_ptr<std::vector<Triangle>>& triangles, const
     for(const Triangle& triangle : *(this->triangles)) {
         std::pair<Vec3, Vec3> minMaxBounds = triangle.getBounds();
 
-        minMaxBounds.first = transform.pointToWorld(minMaxBounds.first);
-        minMaxBounds.second = transform.pointToWorld(minMaxBounds.second);
-
         for(int i = 0; i < 3; ++i) {
             min[i] = std::min(min[i], minMaxBounds.first[i]);
             max[i] = std::max(max[i], minMaxBounds.second[i]);
@@ -56,6 +53,17 @@ inline Mesh::~Mesh()
     for (Surface* surface : surfaces) delete surface;
 }
 
+inline const HitData Mesh::AABBintersection(const Ray& worldRay, const float& tClosestSurface) const
+{
+    Ray localRay = transform.rayToLocal(worldRay);
+    return aabb.intersection(localRay, tClosestSurface);
+}
+
+inline const bool Mesh::AABBcontains(const Vec3& worldPoint) const
+{
+    return aabb.contains(transform.pointToLocal(worldPoint));
+}
+
 inline const HitData Mesh::intersection(const Ray &worldRay) const
 {
     Ray localRay = transform.rayToLocal(worldRay);
@@ -82,13 +90,15 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
         }
     }
 
-    if(wireframeAABB) {
+    bool hitBox = false;
+    if(wireframeAABB || selected) {
         for(const Rectangle& rect : aabb.wireframe) {
-            HitData currenthitData = rect.intersection(worldRay);
+            HitData currenthitData = rect.intersection(localRay);
 
-            if(currenthitData.hit && currenthitData.t < tClosest) {
+            if(currenthitData.hit && currenthitData.t <= tClosest + 1e-4f) { // Prioritize AABB for debugging
                 tClosest = currenthitData.t;
                 finalHitData = currenthitData;
+                hitBox = true;
             }
         }
     }
@@ -96,7 +106,35 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
     finalHitData.point = transform.pointToWorld(finalHitData.point);
     finalHitData.faceNormal = transform.normalToWorld(finalHitData.faceNormal);
     finalHitData.shadingNormal = transform.normalToWorld(finalHitData.shadingNormal);
-    finalHitData.material = material;
+    if(!hitBox) finalHitData.material = material; // Make sure to keep AABB material
+
+    // AABB is the inverted color of the mesh
+    if(hitBox && selected) { // TODO: Fix this weird logic for matierls when selected or debug mode
+        finalHitData.material = material;
+        finalHitData.material.ambientColor = (finalHitData.material.ambientColor - 1) * -1;
+        finalHitData.material.diffuseColor = (finalHitData.material.diffuseColor - 1) * -1;
+        finalHitData.material.specularColor = (finalHitData.material.specularColor - 1) * -1;
+    }
 
     return finalHitData;
+}
+
+inline void Mesh::applyTransform(const Mat4& transformation)
+{
+    transform.applyTransform(transformation);
+}
+
+inline void Mesh::toggleSelected()
+{
+    selected = !selected;
+}
+
+inline void Mesh::markSelected()
+{
+    selected = true;
+}
+
+inline void Mesh::markDeselected()
+{
+    selected = false;
 }

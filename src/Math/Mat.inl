@@ -3,7 +3,7 @@
 // Mat3 Struct
 
 constexpr Mat3::Mat3(const Vec3& u, const Vec3& v, const Vec3& w)
-                    : u(u), v(v), w(w) {};
+                    : u(u), v(v), w(w) {}
 
 constexpr Mat3::Mat3(const Mat4& mat4)
                     : u(Vec3(mat4.x)), v(Vec3(mat4.y)), w(Vec3(mat4.z)) {}
@@ -64,7 +64,10 @@ inline void Mat3::orthoNormalize()
 // Mat4 Struct
 
 constexpr Mat4::Mat4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w)
-                    : x(x), y(y), z(z), w(w) {};
+                    : x(x), y(y), z(z), w(w) {}
+
+constexpr Mat4::Mat4(const Mat3& mat3)
+                    : x(Vec4(mat3.u)), y(Vec4(mat3.v)), z(Vec4(mat3.w)), w(Vec4(0, 0, 0, 1)) {}
 
 inline Mat4 Mat4::identity()
 {
@@ -120,4 +123,20 @@ inline Vec4 Mat4::matvec(const Vec4& vec) const
                 col1.y + col2.y + col3.y + col4.y, 
                 col1.z + col2.z + col3.z + col4.z,
                 col1.w + col2.w + col3.w + col4.w);
+}
+
+inline Mat4 Mat4::matmat(const Mat4& otherM) const
+{
+    Mat3 newTopLeft = Mat3(*this).matmat(Mat3(otherM));
+    Vec4 newTranslation = Vec4(Vec3(this->w) + Vec3(otherM.w));
+
+    Mat4 newMat = Mat4(newTopLeft);
+    newMat.w = newTranslation;
+
+    return newMat;
+}
+
+inline Mat4 Mat4::operator-() const
+{
+    return Mat4(x, y, z, -w);
 }

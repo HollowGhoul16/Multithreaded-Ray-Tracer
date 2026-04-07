@@ -10,6 +10,8 @@ struct AABB {
 
     HitData intersection(const Ray& ray, const float& tClosestMax) const;
 
+    bool contains(const Vec3& p) const;
+
     void constructWireframe();
 };
 

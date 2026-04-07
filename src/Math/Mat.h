@@ -33,6 +33,8 @@ struct Mat4 {
 
     constexpr Mat4(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w);
 
+    constexpr Mat4(const Mat3& mat3);
+
     static Mat4 identity();
 
     Mat4 inverseModel() const;
@@ -42,6 +44,10 @@ struct Mat4 {
     Vec3 matvec(const Vec3& vec) const; // Uses 1 for w value for use of homogeneous coordinates
 
     Vec4 matvec(const Vec4& vec) const;
+
+    Mat4 matmat(const Mat4& otherM) const;
+
+    Mat4 operator-() const;
 };
 
 #include "Mat.inl"
