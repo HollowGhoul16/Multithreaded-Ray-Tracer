@@ -47,6 +47,8 @@ struct Mat4 {
 
     Mat4 matmat(const Mat4& otherM) const;
 
+    Mat4 negateShift() const;
+
     Mat4 operator-() const;
 };
 

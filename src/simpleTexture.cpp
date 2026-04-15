@@ -27,8 +27,8 @@ const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 
 // In front and center
 Camera* cameras[2] = {
-    new OrthographicCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 50, 100), Vec3(0, 20, -1), Vec3(0, 1, 0), 270.0)
+    new OrthographicCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0)),
+    new PerspectiveCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0), 270.0)
 };
 
 Scene* scene = nullptr;
@@ -42,6 +42,13 @@ bool Mesh::wireframeAABB = false;
 MeshSelector meshSelector;
 double mouseX, mouseY;
 
+void getMouseWorldCoords(GLFWwindow *window, double& worldX, double& worldY)
+{
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+    worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
+    worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+}
+
 // From https://www.glfw.org/docs/3.3/input_guide.html
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) // TODO: Create input handler class
 {
@@ -53,9 +60,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     if (key == GLFW_KEY_RIGHT_SHIFT && action == GLFW_PRESS) Screenshot::screenshot(imageData, imageWidth, imageHeight);
 
-    // Toggle Debug AABB
+    // Toggle Debug AABB (note: displays as an OBB)
 
     if (key == GLFW_KEY_B && action == GLFW_PRESS) Mesh::wireframeAABB = !Mesh::wireframeAABB;
+
+    // Duplicates currently selected meshes
+
+    if (key == GLFW_KEY_V && action == GLFW_PRESS) {
+        std::vector<Mesh> duplicatedMeshes = meshSelector.duplicate();
+        meshSelector.deselectAll();
+        std::vector<Mesh*> newSelectedMeshes = scene->addMeshes(std::move(duplicatedMeshes));
+        for(Mesh* mesh : newSelectedMeshes) meshSelector.select(mesh);
+    }
 
     // Change thread amount by power of 2
 
@@ -75,9 +91,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-        float worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
-        float worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+        double worldX, worldY;
+        getMouseWorldCoords(window, worldX, worldY);
 
         Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
         if(selectedMesh != nullptr) meshSelector.select(selectedMesh);
@@ -85,9 +100,8 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-        float worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
-        float worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+        double worldX, worldY;
+        getMouseWorldCoords(window, worldX, worldY);
 
         Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
         if(selectedMesh != nullptr) meshSelector.deselect(selectedMesh);
@@ -171,15 +185,17 @@ int main()
     // meshes.push_back(std::move(mirrorCube));
 
     // Big Ground Sphere
-    groundSphereSurface.push_back(new Sphere(Vec3(0, -7000, -160), 7000, BLUE_MAT));
+    // groundSphereSurface.push_back(new Sphere(Vec3(0, -7000, -160), 7000, BLUE_MAT));
+    groundSphereSurface.push_back(new Sphere());
+    Mat4 groundSphereModelMatrix(Vec4(7000, 0, 0, 0), Vec4(0, 7000, 0, 0), Vec4(0, 0, 7000, 0), Vec4(0, -7000, -160, 1));
 
-    Mesh groundSphere(std::move(groundSphereSurface));
+    Mesh groundSphere(std::move(groundSphereSurface), groundSphereModelMatrix);
     groundSphere.material = BLUE_MAT;
-    meshes.push_back(std::move(groundSphere));
+    // meshes.push_back(std::move(groundSphere));
 
     // Import Models
     Mat4 cubeModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 50, -200, 1));
-    Mat4 cubeModelMatrix2(Vec4(100, 0, 0, 0), Vec4(0, 100, 0, 0), Vec4(0, 0, 100, 0), Vec4(0, 500, -160, 1));
+    Mat4 cubeModelMatrix2(Vec4(7000, 0, 0, 0), Vec4(0, 7000, 0, 0), Vec4(0, 0, 7000, 0), Vec4(0, -7000, -160, 1));
     MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
     Mesh cube = cubeData.makeInstance(cubeModelMatrix, OFF_WHITE_MAT);
     Mesh cube2 = cubeData.makeInstance(cubeModelMatrix2, MIRROR_MAT);
@@ -425,7 +441,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        meshSelector.applyTransform(-SHIFT_Z);
+        meshSelector.applyTransform(SHIFT_Z.negateShift());
     }
 
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
@@ -433,7 +449,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-        meshSelector.applyTransform(-SHIFT_X);
+        meshSelector.applyTransform(SHIFT_X.negateShift());
     }
 
     if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) {
@@ -441,7 +457,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-        meshSelector.applyTransform(-SHIFT_Y);
+        meshSelector.applyTransform(SHIFT_Y.negateShift());
     }
 
     // Scale
@@ -477,7 +493,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_SEMICOLON) == GLFW_PRESS) {
-        meshSelector.applyTransform(-ROTATION_PITCH);
+        meshSelector.applyTransform(ROTATION_PITCH_INVERSE);
     }
 
     if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
@@ -485,7 +501,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-        meshSelector.applyTransform(-ROTATION_YAW);
+        meshSelector.applyTransform(ROTATION_YAW_INVERSE);
     }
 
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
@@ -493,7 +509,7 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
-        meshSelector.applyTransform(-ROTATION_ROLL);
+        meshSelector.applyTransform(ROTATION_ROLL_INVERSE);
     }
 
     // Camera Controls

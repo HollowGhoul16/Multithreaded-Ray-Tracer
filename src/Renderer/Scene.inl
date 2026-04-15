@@ -3,6 +3,7 @@
 inline Scene::Scene(const Atmosphere& atm, std::vector<Mesh>&& m, std::vector<Light*> l, Camera* c[])
                    : atmosphere(atm), meshes(std::move(m)), lights(std::move(l))
 {
+    meshes.reserve(1000);
     lights.push_back(&atmosphere.luminary);
     currentCamera = cameras[toggleCamera] = c[toggleCamera];
     cameras[!toggleCamera] = c[!toggleCamera];
@@ -36,6 +37,18 @@ inline Mesh* Scene::selectMesh(const float& x, const float& y)
     }
 
     return closestMesh;
+}
+
+inline std::vector<Mesh*> Scene::addMeshes(std::vector<Mesh>&& meshes)
+{
+    std::vector<Mesh*> newSelectedMeshes;
+
+    for(Mesh& mesh : meshes) {
+        this->meshes.push_back(std::move(mesh));
+        newSelectedMeshes.push_back(&(this->meshes.back()));
+    }
+
+    return newSelectedMeshes;
 }
 
 inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) const
@@ -115,7 +128,7 @@ inline Color Scene::getColor(const Material& mat, const Ray& ray, const Vec3& po
     // Ambient Light
     Color ambient = mat.ambientColor * mat.ambientCoeff;
 
-    finalColor = finalColor + ambient;
+    finalColor = ambient;
 
     for(const Light* light : lights) {
         Vec3 reversedLight = -light->getDirection(point);
@@ -146,7 +159,7 @@ inline bool Scene::castShadow(const Light* light, const Vec3& lightDir, const Ve
     HitData hitData;
 
     for(const Mesh& mesh : meshes) {
-        hitData = mesh.aabb.intersection(shadowRay, std::numeric_limits<float>::max());
+        hitData = mesh.AABBintersection(shadowRay, std::numeric_limits<float>::max());
 
         if(!hitData.hit || hitData.t > distToLight) continue;
 

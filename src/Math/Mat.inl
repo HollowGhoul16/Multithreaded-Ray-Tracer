@@ -136,9 +136,14 @@ inline Mat4 Mat4::matmat(const Mat4& otherM) const
     return newMat;
 }
 
-inline Mat4 Mat4::operator-() const
+inline Mat4 Mat4::negateShift() const
 {
     return Mat4(x, y, z, -w);
+}
+
+inline Mat4 Mat4::operator-() const
+{
+    return Mat4(-x, -y, -z, w);
 }
 
 // Free functions for Mat4

@@ -7,6 +7,8 @@ inline Surface::Surface(const Material& m)
 
 // Sphere struct
 
+inline Sphere::Sphere() : Surface(Material()), radius(1.0f) {}
+
 inline Sphere::Sphere(const Vec3& cent, const float& r, const Material& m)
                      : Surface(m), center(cent), radius(r) {};
 

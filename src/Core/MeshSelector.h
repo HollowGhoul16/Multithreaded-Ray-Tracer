@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <vector>
 
 #include "Geometry/Mesh.h"
 #include "Math/Mat.h"
@@ -11,6 +12,8 @@ struct MeshSelector {
     MeshSelector() = default;
 
     void applyTransform(const Mat4& transformation);
+
+    std::vector<Mesh> duplicate();
 
     void select(Mesh* mesh);
 

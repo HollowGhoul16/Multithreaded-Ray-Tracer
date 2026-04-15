@@ -34,6 +34,8 @@ struct Mesh {
 
     const HitData intersection(const Ray& worldRay) const;
 
+    Mesh duplicate() const;
+
     void applyTransform(const Mat4& transformation);
 
     void toggleSelected();

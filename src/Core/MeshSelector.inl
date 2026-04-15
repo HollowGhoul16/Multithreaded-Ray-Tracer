@@ -5,6 +5,15 @@ inline void MeshSelector::applyTransform(const Mat4& transformation)
     for(Mesh* mesh : selected) mesh->applyTransform(transformation);
 }
 
+inline std::vector<Mesh> MeshSelector::duplicate()
+{
+    std::vector<Mesh> duplicatedMeshes;
+
+    for(Mesh* mesh : selected) duplicatedMeshes.push_back(mesh->duplicate());
+
+    return duplicatedMeshes;
+}
+
 inline void MeshSelector::select(Mesh* mesh)
 {
     mesh->markSelected();

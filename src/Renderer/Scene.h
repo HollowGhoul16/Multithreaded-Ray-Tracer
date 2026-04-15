@@ -22,6 +22,8 @@ struct Scene {
 
     Mesh* selectMesh(const float& x, const float& y);
 
+    std::vector<Mesh*> addMeshes(std::vector<Mesh>&& meshes);
+
     Color getPixelColor(const float& x, const float& y, int recurse = 100) const;
 
     Color rayTrace(Ray& ray, int& recurse) const;

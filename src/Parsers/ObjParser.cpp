@@ -144,9 +144,8 @@ MeshData parseObj(const std::string& path)
 
             // If no vertex normals, default to using face normals (geometric shading)
             if(fileFormat == ObjFormat::P || fileFormat == ObjFormat::PT) {
-                for(int i = 0; i < 3; ++i) {
-                    triangleNorms[i] = (triangleVerts[1] - triangleVerts[0]).cross((triangleVerts[2] - triangleVerts[1]));
-                }
+                Vec3 geometricNormal = (triangleVerts[1] - triangleVerts[0]).cross((triangleVerts[2] - triangleVerts[1]));
+                for(int i = 0; i < 3; ++i) triangleNorms[i] = geometricNormal;
             }
 
             Triangle triangle = Triangle(triangleVerts, textureCoords, triangleNorms, Material());

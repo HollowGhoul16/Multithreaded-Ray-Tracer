@@ -119,6 +119,19 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
     return finalHitData;
 }
 
+inline Mesh Mesh::duplicate() const
+{
+    Mat4 newModelMatrix = this->transform.modelMatrix;
+
+    thread_local Vec4 OFFSET = Vec4(100, 100, 100, 0);
+    newModelMatrix.w = newModelMatrix.w + OFFSET;
+
+    Mesh newMesh(this->triangles, newModelMatrix);
+    newMesh.material = this->material;
+
+    return newMesh;
+}
+
 inline void Mesh::applyTransform(const Mat4& transformation)
 {
     transform.applyTransform(transformation);

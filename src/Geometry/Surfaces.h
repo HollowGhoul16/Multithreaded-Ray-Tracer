@@ -23,6 +23,8 @@ struct Sphere : Surface {
     Vec3 center;
     float radius;
 
+    Sphere();
+
     Sphere(const Vec3& cent, const float& r, const Material& m);
 
     HitData intersection(const Ray& ray) const override;
