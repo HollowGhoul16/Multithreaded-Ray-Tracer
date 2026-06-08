@@ -13,7 +13,7 @@
 #include "Core/Screenshot.h"
 #include "Core/Utils.h"
 
-#include "SceneConstants.cpp"
+#include "SceneConstants.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -28,7 +28,7 @@ const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 // In front and center
 Camera* cameras[2] = {
     new OrthographicCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0), 270.0)
+    new PerspectiveCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0), 250.0)
 };
 
 Scene* scene = nullptr;
@@ -110,21 +110,21 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 int main()
 {
-    unsigned int textureSideLength;
+    // unsigned int textureSideLength;
 
-    while(true) {
-        std::cout << "\nEnter side length of the rendered square texture (logical pixels).\n"
-                  << "Sets texture resolution (NxN) before sampling to the framebuffer: ";
+    // while(true) {
+    //     std::cout << "\nEnter side length of the rendered square texture (logical pixels).\n"
+    //               << "Sets texture resolution (NxN) before sampling to the framebuffer: ";
 
-        std::cin >> textureSideLength;
+    //     std::cin >> textureSideLength;
 
-        if(isPowerOfTwo(textureSideLength)) {
-            std::cout << "\n";
-            break;
-        }
+    //     if(isPowerOfTwo(textureSideLength)) {
+    //         std::cout << "\n";
+    //         break;
+    //     }
 
-        std::cout << "Error.\n";
-    }
+    //     std::cout << "Error.\n";
+    // }
 
     ResourceManager resourceManager;
 
@@ -196,15 +196,19 @@ int main()
     // Import Models
     Mat4 cubeModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 50, -200, 1));
     Mat4 cubeModelMatrix2(Vec4(7000, 0, 0, 0), Vec4(0, 7000, 0, 0), Vec4(0, 0, 7000, 0), Vec4(0, -7000, -160, 1));
-    MeshData cubeData = resourceManager.loadObj("../models/cube.obj");
-    Mesh cube = cubeData.makeInstance(cubeModelMatrix, OFF_WHITE_MAT);
+    MeshData cubeData = resourceManager.loadMesh("../assets/models/cube.obj");
+    Mesh cube = cubeData.makeInstance(cubeModelMatrix, BRICK_MAT);
     Mesh cube2 = cubeData.makeInstance(cubeModelMatrix2, MIRROR_MAT);
+
+    TextureData brickTexture = resourceManager.loadTexture("../assets/textures/Horror_Brick_02-512x512.png");
+    brickTexture.generateMipmap(TextureData::MipmapFilter::Triangle);
+    cube.applyTexture(brickTexture, Texture::SampleFilter::Linear_Mipmap_Linear);
 
     meshes.push_back(std::move(cube));
     meshes.push_back(std::move(cube2));    
 
     Mat4 pawnModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 150, -200, 1));
-    MeshData pawnData = resourceManager.loadObj("../models/pawn.obj");
+    MeshData pawnData = resourceManager.loadMesh("../assets/models/pawn.obj");
     Mesh pawn = pawnData.makeInstance(pawnModelMatrix, RED_MAT);
     meshes.push_back(std::move(pawn));
 
@@ -235,7 +239,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", glfwGetPrimaryMonitor(), NULL);
     glfwSetMouseButtonCallback(window, mouseCallback);
     glfwSetKeyCallback(window, keyCallback);
 
@@ -345,8 +349,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    imageWidth  = textureSideLength; // keep it in powers of 2!
-    imageHeight = textureSideLength; // keep it in powers of 2!
+    imageWidth  = 600; // keep it in powers of 2!
+    imageHeight = 400; // keep it in powers of 2!
     imageData = new unsigned char[imageWidth * imageHeight * 3]; // TODO: attempt dynamic texture sizing
 
     ThreadPool threadPool(MAX_RENDER_THREAD_COUNT);
@@ -390,6 +394,7 @@ int main()
 
         if (imageData)
         {
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
@@ -401,7 +406,7 @@ int main()
         currentFrameCount += 1; // For calculating FPS
     }
 
-    continueFPS = false;; // For ending FPS thread execution
+    continueFPS = false; // For ending FPS thread execution
     signalCompleteFPS.get(); // Wait until FPS thread is done executing
 
     // optional: de-allocate all resources once they've outlived their purpose:

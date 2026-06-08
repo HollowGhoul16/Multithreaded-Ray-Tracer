@@ -109,12 +109,11 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 
     if(surfaceMat.isEmissive || !surfaceMat.isGlazed || recurse <= 0) return color;
 
-    const Vec3 rayDirNorm = ray.direction.normalize();
     ray.origin = pointHit + faceNormal * 0.001f;
-    ray.direction = rayDirNorm - (faceNormal * faceNormal.dot(rayDirNorm) * 2);
+    ray.direction = (ray.direction - (faceNormal * faceNormal.dot(ray.direction) * 2)).normalize();
 
-    if(surfaceMat.isMirror) return rayTrace(ray,  --recurse) * surfaceMat.specularColor * surfaceMat.specularCoeff;
-    else color = color + (rayTrace(ray,  --recurse) * surfaceMat.specularCoeff);
+    if(surfaceMat.isMirror) return rayTrace(ray, --recurse) * surfaceMat.specularColor * surfaceMat.specularCoeff;
+    else color = color + (rayTrace(ray, --recurse) * surfaceMat.specularCoeff);
 
     return color;
 }
@@ -154,7 +153,7 @@ inline Color Scene::getColor(const Material& mat, const Ray& ray, const Vec3& po
 
 inline bool Scene::castShadow(const Light* light, const Vec3& lightDir, const Vec3& pointHit, const Vec3& surfaceNormal) const
 {
-    const Ray shadowRay(pointHit + surfaceNormal * 0.001f, lightDir);
+    Ray shadowRay(pointHit + surfaceNormal * 0.001f, lightDir);
     const float distToLight = light->distanceTo(shadowRay.origin);
     HitData hitData;
 
@@ -163,7 +162,7 @@ inline bool Scene::castShadow(const Light* light, const Vec3& lightDir, const Ve
 
         if(!hitData.hit || hitData.t > distToLight) continue;
 
-        hitData = mesh.intersection(shadowRay);
+        hitData = mesh.intersection(shadowRay); // TODO: Create dedicated shadow function to prevent complications with raycones
 
         if(hitData.hit && hitData.t < distToLight) return true;
     }

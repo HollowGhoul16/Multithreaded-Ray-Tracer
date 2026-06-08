@@ -182,9 +182,9 @@ MeshData parseObj(const std::string& path)
         for(int i = 0; i < 3; ++i) triangle.edges[i] = triangle.vertices[(i + 1) % 3] - triangle.vertices[i];
     }
 
-    std::shared_ptr<std::vector<Triangle>> trianglesPtr = std::make_shared<std::vector<Triangle>>(std::move(triangles));
+    std::shared_ptr<std::vector<Triangle>> triangleDataPtr = std::make_shared<std::vector<Triangle>>(std::move(triangles));
 
-    MeshData meshData(std::move(trianglesPtr));
+    MeshData meshData(std::move(triangleDataPtr));
 
     return meshData;
 }

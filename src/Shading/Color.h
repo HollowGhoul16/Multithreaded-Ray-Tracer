@@ -15,6 +15,8 @@ struct Color {
 
     static float smoothStep(const float& min, const float& max, const float& value);
 
+    void toLinear(); // Used when getting colors from texture
+
     void toSRGB();
 
     void clamp();

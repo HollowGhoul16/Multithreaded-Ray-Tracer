@@ -40,12 +40,24 @@ inline Mesh::Mesh(std::vector<Surface*>&& surfaces, const Mat4& modelMatrix)
     aabb.constructWireframe();
 }
 
+inline Mesh::Mesh(const Mesh& otherMesh)
+    : aabb(otherMesh.aabb),
+      triangles(otherMesh.triangles),
+      surfaces(otherMesh.surfaces),
+      transform(otherMesh.transform),
+      texture(otherMesh.texture),
+      material(otherMesh.material),
+      cullMode(otherMesh.cullMode)
+{}
+
 inline Mesh::Mesh(Mesh&& otherMesh)
     : aabb(std::move(otherMesh.aabb)),
       triangles(std::move(otherMesh.triangles)),
       surfaces(std::move(otherMesh.surfaces)),
       transform(std::move(otherMesh.transform)),
-      material(std::move(otherMesh.material))
+      texture(std::move(otherMesh.texture)),
+      material(std::move(otherMesh.material)),
+      cullMode(std::move(otherMesh.cullMode))
 {}
 
 inline Mesh::~Mesh() 
@@ -61,10 +73,22 @@ inline const HitData Mesh::AABBintersection(const Ray& worldRay, const float& tC
 
 inline const bool Mesh::AABBcontains(const Vec3& worldPoint) const
 {
-    return aabb.contains(transform.pointToLocal(worldPoint));
+    Vec3 localPoint = transform.pointToLocal(worldPoint);
+    return aabb.contains(localPoint);
 }
 
-inline const HitData Mesh::intersection(const Ray &worldRay) const
+inline const bool Mesh::cull(const Vec3& rayDir, const Vec3& surfaceNormal) const
+{
+    switch(cullMode) {
+               case CullMode::Off:            return false;
+        break; case CullMode::Front:          return rayDir.dot(surfaceNormal) < 0;
+        break; case CullMode::Back:           return rayDir.dot(surfaceNormal) > 0;
+        break; case CullMode::Front_And_Back: return true;
+        break; default:                       return false;
+    }
+}
+
+inline const HitData Mesh::intersection(Ray& worldRay) const
 {
     Ray localRay = transform.rayToLocal(worldRay);
     float tClosest = std::numeric_limits<float>::max();
@@ -72,6 +96,7 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
 
     if(triangles.get() != nullptr) {
         for(const Triangle& triangle : *triangles) {
+            if(cull(localRay.direction, triangle.normalVec)) continue;
             HitData currenthitData = triangle.intersection(localRay);
 
             if(currenthitData.hit && currenthitData.t < tClosest) {
@@ -103,16 +128,33 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
         }
     }
 
+    if(!finalHitData.hit) return finalHitData; // Prevent unneccessary computations
+
     finalHitData.point = transform.pointToWorld(finalHitData.point);
+    finalHitData.t = (finalHitData.point - worldRay.origin).dot(worldRay.direction); // Compute world t value
     finalHitData.faceNormal = transform.normalToWorld(finalHitData.faceNormal);
     finalHitData.shadingNormal = transform.normalToWorld(finalHitData.shadingNormal);
     if(!hitBox) finalHitData.material = material; // Make sure to keep AABB material
 
+    worldRay.cone.updateWidth(finalHitData.t);
+
+    if(finalHitData.surfaceType == SurfaceType::Triangle && texture.exists() && finalHitData.texCoord.x != -1 && finalHitData.texCoord.y != -1) {
+        float lambda = static_cast<const Triangle*>(finalHitData.surface)->getLODConstant(transform.modelMatrix);
+        lambda += std::log2(worldRay.cone.width);
+        lambda += 0.5 * log2(texture.baseLevel.width * texture.baseLevel.height);
+        lambda -= std::log2(std::abs(worldRay.direction.dot(finalHitData.faceNormal)));
+        lambda -= 0.5f; // Constant to prevent slight overblur
+
+        Color texColor = texture.sample(finalHitData.texCoord.x, finalHitData.texCoord.y, lambda);
+        finalHitData.material.ambientColor = texColor;
+        finalHitData.material.diffuseColor = texColor;
+    }
+
     // AABB is the inverted color of the mesh
-    if(hitBox && selected) { // TODO: Fix this weird logic for matierls when selected or debug mode
+    if(hitBox && selected) { // TODO: Fix this weird logic for materials when selected or debug mode
         finalHitData.material = material;
-        finalHitData.material.ambientColor = (finalHitData.material.ambientColor - 1) * -1;
-        finalHitData.material.diffuseColor = (finalHitData.material.diffuseColor - 1) * -1;
+        finalHitData.material.ambientColor  = (finalHitData.material.ambientColor  - 1) * -1;
+        finalHitData.material.diffuseColor  = (finalHitData.material.diffuseColor  - 1) * -1;
         finalHitData.material.specularColor = (finalHitData.material.specularColor - 1) * -1;
     }
 
@@ -121,20 +163,27 @@ inline const HitData Mesh::intersection(const Ray &worldRay) const
 
 inline Mesh Mesh::duplicate() const
 {
-    Mat4 newModelMatrix = this->transform.modelMatrix;
-
-    thread_local Vec4 OFFSET = Vec4(100, 100, 100, 0);
-    newModelMatrix.w = newModelMatrix.w + OFFSET;
-
-    Mesh newMesh(this->triangles, newModelMatrix);
-    newMesh.material = this->material;
+    Mesh newMesh(*this);
+    const Vec4 OFFSET(100, 100, 100, 0);
+    newMesh.transform.modelMatrix.w = newMesh.transform.modelMatrix.w + OFFSET;
+    newMesh.transform.update();
 
     return newMesh;
+}
+
+inline void Mesh::applyTexture(const TextureData& textureData, const Texture::SampleFilter& sampleFilter)
+{
+    texture = Texture(textureData, sampleFilter);
 }
 
 inline void Mesh::applyTransform(const Mat4& transformation)
 {
     transform.applyTransform(transformation);
+}
+
+inline void Mesh::setCullingMode(const CullMode& cullMode)
+{
+    this->cullMode = cullMode;
 }
 
 inline void Mesh::toggleSelected()

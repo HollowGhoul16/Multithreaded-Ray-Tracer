@@ -4,6 +4,20 @@
 #include "Math/Math.h"
 #include "Lights.h"
 
+enum class CullMode {
+    Off,
+    Front,
+    Back,
+    Front_And_Back
+};
+
+enum class SurfaceType {
+    Sphere,
+    Plane,
+    Rectangle,
+    Triangle
+};
+
 // Sum of the coefficients should be between [0, 1]
 struct Material {
     Color ambientColor, diffuseColor, specularColor;

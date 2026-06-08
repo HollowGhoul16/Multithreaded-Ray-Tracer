@@ -1,25 +1,17 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <unordered_map>
+#include <sys/stat.h>
 
-#include "Parsers/ObjParser.h"
-#include "MeshData.h"
+#include "TextureLoader.h"
+#include "MeshLoader.h"
 
 struct ResourceManager {
-    std::unordered_map<std::string, MeshData> meshDataCache;
+    TextureLoader textureLoader;
+    MeshLoader meshLoader;
 
-    MeshData loadObj(const std::string& path);
+    TextureData loadTexture(const std::string& path);
 
-    enum class FileType {
-        Obj,
-        Invalid
-    };
+    MeshData loadMesh(const std::string& path);
 
-    const std::unordered_map<std::string, FileType> extensionMap = {
-        {".obj", FileType::Obj}
-    };
-
-    FileType getFileType(const std::string& path) const;
+    bool fileExists(const std::string& path) const;
 };

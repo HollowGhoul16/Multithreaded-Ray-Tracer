@@ -2,15 +2,15 @@
 
 // Surface struct
 
-inline Surface::Surface(const Material& m)
-                       : material(m) {};
+inline Surface::Surface(const Material& m, const SurfaceType& t)
+                       : material(m), type(t) {};
 
 // Sphere struct
 
-inline Sphere::Sphere() : Surface(Material()), radius(1.0f) {}
+inline Sphere::Sphere() : Surface(Material(), SurfaceType::Sphere), radius(1.0f) {}
 
 inline Sphere::Sphere(const Vec3& cent, const float& r, const Material& m)
-                     : Surface(m), center(cent), radius(r) {};
+                     : Surface(m, SurfaceType::Sphere), center(cent), radius(r) {};
 
 inline HitData Sphere::intersection(const Ray& ray) const 
 {
@@ -35,6 +35,8 @@ inline HitData Sphere::intersection(const Ray& ray) const
         hitData.faceNormal = normal(ray, hitData.point);
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
+        hitData.surfaceType = type;
+        hitData.surface = this;
         return hitData;
     }
 
@@ -47,6 +49,8 @@ inline HitData Sphere::intersection(const Ray& ray) const
         hitData.faceNormal = normal(ray, hitData.point);
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
+        hitData.surfaceType = type;
+        hitData.surface = this;
     }
 
     return hitData;
@@ -71,7 +75,7 @@ inline std::pair<Vec3, Vec3> Sphere::getBounds() const
 // Plane struct
 
 inline Plane::Plane(const Vec3& p, const Vec3& n, const Material& m)
-                   : Surface(m), point(p), normalVec(n) {};
+                   : Surface(m, SurfaceType::Plane), point(p), normalVec(n) {};
 
 inline HitData Plane::intersection(const Ray& ray) const 
 {
@@ -79,7 +83,7 @@ inline HitData Plane::intersection(const Ray& ray) const
 
     float denom = ray.direction.dot(normalVec);
 
-    if(fabs(denom) < 1e-9f) return hitData; // Prevent t = inf
+    if(fabs(denom) < Math::EPSILON) return hitData; // Prevent t = inf
 
     float t = (point - ray.origin).dot(normalVec) / denom;
 
@@ -91,6 +95,8 @@ inline HitData Plane::intersection(const Ray& ray) const
         hitData.faceNormal = normal(ray, hitData.point);
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
+        hitData.surfaceType = type;
+        hitData.surface = this;
     }
 
     return hitData;
@@ -109,7 +115,9 @@ inline Rectangle::Rectangle()
       corner(Vec3()), 
       edge1(Vec3()), 
       edge2(Vec3()) 
-{}
+{
+    type = SurfaceType::Rectangle;
+}
 
 inline Rectangle::Rectangle(
     const Vec3& c,
@@ -121,7 +129,9 @@ inline Rectangle::Rectangle(
       corner(c),
       edge1(e1),
       edge2(e2)
-{}
+{
+    type = SurfaceType::Rectangle;
+}
 
 // TODO: Figure out ray hitting rectangle edge, edge case (literally)
 inline HitData Rectangle::intersection(const Ray &ray) const
@@ -143,6 +153,8 @@ inline HitData Rectangle::intersection(const Ray &ray) const
     float proj2 = hitPoint.dot(edge2) / edge2Mag;
 
     if(proj2 > edge2Mag || proj2 < 0) hitData.hit = false;
+
+    hitData.surface = this;
 
     return hitData;
 }
@@ -175,16 +187,18 @@ inline std::pair<Vec3, Vec3> Rectangle::getBounds() const
 // Triangle Struct
 
 inline Triangle::Triangle(const Vec3 v[3], const Vec2 tc[3], const Vec3 n[3], const Material &m)
-                         : Plane(v[0], ((v[1] - v[0]).cross((v[2] - v[1]))).normalize(), m)
+                         : Plane(v[0], (v[1] - v[0]).cross(v[2] - v[1]), m)
 {
     for(int i = 0; i < 3; ++i) {
         vertices[i] = v[i];
         texCoords[i] = tc[i];
         normals[i] = n[i].normalize();
-        if(normalVec.dot(normals[i]) < 0) normals[i] = -normals[i]; // Correct vertex normals from .obj using geometric normal
+        if(normalVec.dot(normals[i]) < 0) normals[i] = -normals[i]; // Correct the vertex normals from .obj using geometric normal
     }
 
     for(int i = 0; i < 3; ++i) edges[i] = vertices[(i + 1) % 3] - vertices[i];
+
+    type = SurfaceType::Triangle;
 }
 
 inline HitData Triangle::intersection(const Ray& ray) const
@@ -196,7 +210,7 @@ inline HitData Triangle::intersection(const Ray& ray) const
     Vec3 pvec = ray.direction.cross(v0v2);
     float det = v0v1.dot(pvec);
 
-    if(fabs(det) < 1e-9f) return hitData;
+    if(fabs(det) < Math::EPSILON) return hitData;
 
     float invDet = 1 / det;
 
@@ -213,10 +227,13 @@ inline HitData Triangle::intersection(const Ray& ray) const
 
     hitData.hit = true;
     hitData.t = t;
+    hitData.texCoord = (texCoords[0] * (1.0f - u - v) + texCoords[1] * u + texCoords[2] * v);
     hitData.point = ray.parametrize(t);
     hitData.faceNormal = normal(ray, hitData.point);
-    hitData.shadingNormal = (normals[0] * (1 - u - v) + normals[1] * u + normals[2] * v).normalize();
+    hitData.shadingNormal = (normals[0] * (1.0f - u - v) + normals[1] * u + normals[2] * v).normalize();
     hitData.material = material;
+    hitData.surfaceType = type;
+    hitData.surface = this;
 
     return hitData;
 }
@@ -236,4 +253,12 @@ inline std::pair<Vec3, Vec3> Triangle::getBounds() const
     }
 
     return {min, max};
+}
+
+inline float Triangle::getLODConstant(const Mat3& modelMatrix) const
+{
+    float triangleAreaDoubled = (modelMatrix.matvec(edges[0]).cross(modelMatrix.matvec(edges[2]))).magnitude();
+    float texCoordsAreaDoubled = ((texCoords[1] - texCoords[0]).cross(texCoords[2] - texCoords[1]));
+
+    return 0.5 * log2(std::fabs(texCoordsAreaDoubled) / triangleAreaDoubled);
 }

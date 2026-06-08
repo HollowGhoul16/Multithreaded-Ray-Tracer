@@ -7,8 +7,9 @@
 
 struct Surface {
     Material material;
+    SurfaceType type;
 
-    Surface(const Material& m);
+    Surface(const Material& m, const SurfaceType& t);
 
     virtual ~Surface() = default;
 
@@ -79,6 +80,8 @@ struct Triangle : Plane {
     Vec3 normal(const Ray& ray, const Vec3& point) const override;
 
     std::pair<Vec3, Vec3> getBounds() const override;
+
+    float getLODConstant(const Mat3& modelMatrix) const;
 };
 
 #include "Surfaces.inl"

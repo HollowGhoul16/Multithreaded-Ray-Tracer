@@ -21,6 +21,14 @@ inline float Color::smoothStep(const float& min, const float& max, const float& 
     return t * t * (3 - 2 * t);
 }
 
+// Go from non-linear [0, 255] range to [0, 1] for color manipulation
+inline void Color::toLinear()
+{
+    r = (std::pow(r / 255, 2.2));
+    g = (std::pow(g / 255, 2.2));
+    b = (std::pow(b / 255, 2.2));
+}
+
 // Go from linear [0, 1] range to [0, 255] for image display
 inline void Color::toSRGB()
 {

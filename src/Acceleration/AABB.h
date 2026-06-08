@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/Vec.h"
+#include "Renderer/Ray.h"
 #include "Geometry/HitData.hpp"
 #include "Geometry/Surfaces.h"
 

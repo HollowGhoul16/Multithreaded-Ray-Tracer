@@ -3,6 +3,8 @@
 #include <math.h>
 #include <random>
 
+#include "Math_Constants.hpp"
+
 struct Vec4;
 
 struct Vec2 {
@@ -15,6 +17,14 @@ struct Vec2 {
     static Vec2 randomRayOffset();
 
     float magnitude() const;
+
+    float cross(const Vec2& otherVec) const;
+
+    Vec2 operator*(const float& scalar) const;
+
+    Vec2 operator+(const Vec2& otherVec) const;
+
+    Vec2 operator-(const Vec2& otherVec) const;
 };
 
 struct Vec3 {

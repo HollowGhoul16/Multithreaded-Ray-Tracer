@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "Acceleration/AABB.h"
+#include "Shading/Texture.h"
 #include "Transform.h"
 #include "Surfaces.h"
 
@@ -14,7 +15,9 @@ struct Mesh {
     std::shared_ptr<std::vector<Triangle>> triangles;
     std::vector<Surface*> surfaces;
     Transform transform;
+    Texture texture;
     Material material;
+    CullMode cullMode = CullMode::Back;
     bool selected = false;
     static bool wireframeAABB;
 
@@ -24,6 +27,8 @@ struct Mesh {
 
     Mesh(std::vector<Surface*>&& surfaces, const Mat4& modelMatrix = Mat4::identity());
 
+    Mesh(const Mesh& otherMesh);
+
     Mesh(Mesh&& otherMesh);
 
     ~Mesh();
@@ -32,11 +37,17 @@ struct Mesh {
 
     const bool AABBcontains(const Vec3& worldPoint) const;
 
-    const HitData intersection(const Ray& worldRay) const;
+    const bool cull(const Vec3& rayDir, const Vec3& surfaceNormal) const;
+
+    const HitData intersection(Ray& worldRay) const;
 
     Mesh duplicate() const;
 
+    void applyTexture(const TextureData& textureData, const Texture::SampleFilter& sampleFilter);
+
     void applyTransform(const Mat4& transformation);
+
+    void setCullingMode(const CullMode& cullMode);
 
     void toggleSelected();
 

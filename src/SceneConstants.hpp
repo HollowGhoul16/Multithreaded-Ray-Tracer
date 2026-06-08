@@ -1,5 +1,8 @@
+#pragma once
+
 #include "Renderer/Scene.h"
 #include "Core/Utils.h"
+#include "Math/Math.h"
 
 /*
 ===============================
@@ -9,7 +12,7 @@
 
 // Setting Constants
 
-constexpr unsigned int SCR_WIDTH = 800;
+constexpr unsigned int SCR_WIDTH  = 800;
 constexpr unsigned int SCR_HEIGHT = 800;
 
 const unsigned int MAX_THREAD_COUNT        = maxThreadCount();
@@ -18,7 +21,7 @@ const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
 // Camera Constants
 
 constexpr float SHIFT = 2.5f;
-constexpr float THETA = 2.5f * (M_PI / 180); // Converts degrees to radians for the cmath functions
+constexpr float THETA = 2.5f * (Math::PRECISE_PI / 180); // Converts degrees to radians for the cmath functions
 
 // Transformation Matrix Constants
 
@@ -198,6 +201,19 @@ const Material GREEN_MIRROR_MAT(
 const Material BLUE_MIRROR_MAT(
     MIRROR_BLUE,
     MIR_COEFF
+);
+
+// Texture Materials
+
+const Material BRICK_MAT(
+    BLUE,
+    BLUE,
+    WHITE,
+    AMB_COEFF,
+    .9,
+    .05,
+    SPE_EXP,
+    !IS_GLAZED
 );
 
 // Light Constants

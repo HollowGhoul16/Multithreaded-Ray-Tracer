@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Vec.h"
+#include "Math/Vec.h"
+#include "RayCone.h"
 
 struct Ray {
     Vec3 origin, direction;
+    RayCone cone;
 
     Ray() = default;
 

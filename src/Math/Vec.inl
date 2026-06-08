@@ -22,6 +22,29 @@ inline float Vec2::magnitude() const
                      y * y);
 }
 
+inline float Vec2::cross(const Vec2& otherVec) const
+{
+    return (this->x * otherVec.y) - (this->y * otherVec.x);
+}
+
+inline Vec2 Vec2::operator*(const float& scalar) const
+{
+    return Vec2(x * scalar,
+                y * scalar);
+}
+
+inline Vec2 Vec2::operator+(const Vec2& otherVec) const
+{
+    return Vec2(x + otherVec.x,
+                y + otherVec.y);
+}
+
+inline Vec2 Vec2::operator-(const Vec2& otherVec) const
+{
+    return Vec2(x - otherVec.x,
+                y - otherVec.y);
+}
+
 // Vec3 Struct
 
 constexpr Vec3::Vec3() : x(0), y(0), z(0) {}
@@ -62,7 +85,7 @@ inline float Vec3::magnitude() const
 inline Vec3 Vec3::normalize() const
 {
     float magnitude = this->magnitude();
-    if(magnitude < 1e-9f) return Vec3(0, 0, 0);
+    if(magnitude < Math::EPSILON) return Vec3(0, 0, 0);
     return (*this / magnitude);
 }
 
@@ -156,7 +179,7 @@ inline float Vec4::magnitude() const
 inline Vec4 Vec4::normalize() const 
 {
     float magnitude = this->magnitude();
-    if(magnitude < 1e-9f) return Vec4(0, 0, 0, 0);
+    if(magnitude < Math::EPSILON) return Vec4(0, 0, 0, 0);
     return (*this / magnitude); 
 }
 
