@@ -12,5 +12,5 @@ struct HitData {
     Vec3 shadingNormal;
     Material material;
     SurfaceType surfaceType;
-    const Surface* surface = nullptr;
+    const Surface* surfacePtr = nullptr;
 };

@@ -38,6 +38,8 @@ private:
 
 void rayTraceArea(Scene* scene, unsigned char imageData[], const int imageWidth, const int imageHeight, const int rowStart, const int rowEnd);
 
+void rayTraceTile(Scene* scene, unsigned char imageData[], const int imageWidth, const int imageHeight, const int rowStart, const int rowEnd, const int columnStart, const int columnEnd);
+
 void rayTrace(Scene* scene, unsigned char imageData[], const int& imageWidth, const int& imageHeight, ThreadPool& threadPool);
 
 #include "ThreadPool.inl"

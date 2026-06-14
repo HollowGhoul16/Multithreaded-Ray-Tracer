@@ -36,7 +36,7 @@ inline HitData Sphere::intersection(const Ray& ray) const
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
         hitData.surfaceType = type;
-        hitData.surface = this;
+        hitData.surfacePtr = this;
         return hitData;
     }
 
@@ -50,7 +50,7 @@ inline HitData Sphere::intersection(const Ray& ray) const
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
         hitData.surfaceType = type;
-        hitData.surface = this;
+        hitData.surfacePtr = this;
     }
 
     return hitData;
@@ -96,7 +96,7 @@ inline HitData Plane::intersection(const Ray& ray) const
         hitData.shadingNormal = hitData.faceNormal;
         hitData.material = material;
         hitData.surfaceType = type;
-        hitData.surface = this;
+        hitData.surfacePtr = this;
     }
 
     return hitData;
@@ -154,7 +154,7 @@ inline HitData Rectangle::intersection(const Ray &ray) const
 
     if(proj2 > edge2Mag || proj2 < 0) hitData.hit = false;
 
-    hitData.surface = this;
+    hitData.surfacePtr = this;
 
     return hitData;
 }
@@ -233,7 +233,7 @@ inline HitData Triangle::intersection(const Ray& ray) const
     hitData.shadingNormal = (normals[0] * (1.0f - u - v) + normals[1] * u + normals[2] * v).normalize();
     hitData.material = material;
     hitData.surfaceType = type;
-    hitData.surface = this;
+    hitData.surfacePtr = this;
 
     return hitData;
 }

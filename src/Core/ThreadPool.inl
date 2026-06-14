@@ -73,13 +73,32 @@ void rayTraceArea(Scene* scene, unsigned char imageData[], const int imageWidth,
 	}
 }
 
+// void rayTraceTile(Scene* scene, unsigned char imageData[], const int imageWidth, const int imageHeight, const int rowStart, const int rowEnd, const int columnStart, const int columnEnd)
+// {
+// 	for(int j = rowStart; j < rowEnd; ++j) {
+// 		for (int i = columnStart; i < columnEnd; ++i)
+// 		{
+// 			// Translate pixels to world coords
+//             float x = (i + 0.5 - 0.5 * imageWidth);
+//             float y = (j + 0.5 - 0.5 * imageHeight);
+
+// 			Color color = scene->getPixelColor(x, y);
+
+// 			int idx = (j * imageWidth + i) * 3;
+// 			imageData[idx]   = static_cast<unsigned char>(color.r);
+// 			imageData[idx+1] = static_cast<unsigned char>(color.g);
+// 			imageData[idx+2] = static_cast<unsigned char>(color.b);
+// 		}
+// 	}
+// }
+
 inline void rayTrace(Scene* scene, unsigned char imageData[], const int& imageWidth, const int& imageHeight, ThreadPool& threadPool)
 {
-	int rowsToTrace = imageHeight / threadPool.getThreadCount();
+	float rowsToTrace = static_cast<float>(imageHeight) / threadPool.getThreadCount();
 
 	for(size_t i = 0; i < threadPool.getThreadCount(); ++i) {
-		int rowStart = (int)i * rowsToTrace;
-        int rowEnd = rowStart + rowsToTrace;
+		float rowStart = static_cast<int>(i) * rowsToTrace;
+        float rowEnd = rowStart + rowsToTrace;
 
         // TODO: Profile to see whether std::bind or lambda is faster
 		std::packaged_task<void()> job(std::bind(rayTraceArea, scene, imageData, imageWidth, imageHeight, rowStart, rowEnd));
@@ -92,3 +111,28 @@ inline void rayTrace(Scene* scene, unsigned char imageData[], const int& imageWi
 
 	threadPool.waitForThreads();
 }
+
+// inline void rayTrace(Scene* scene, unsigned char imageData[], const int& imageWidth, const int& imageHeight, ThreadPool& threadPool)
+// {
+//     const int threadCount = static_cast<int>(threadPool.getThreadCount());
+// 	int rowsToTrace = imageHeight / 2; // 275
+//     int columnsToTrace = imageWidth / (threadCount / 2); // 125
+
+// 	for(int i = 0; i < threadCount; ++i) {
+//         int temp = (i >= (threadCount / 2)) ? 1 : 0;
+// 		int rowStart = temp * rowsToTrace;
+//         int rowEnd = rowStart + rowsToTrace;
+//         int columnStart = (i % (threadCount / 2)) * columnsToTrace;
+//         int columnEnd = columnStart + columnsToTrace;
+
+//         // TODO: Profile to see whether std::bind or lambda is faster
+// 		std::packaged_task<void()> job(std::bind(rayTraceTile, scene, imageData, imageWidth, imageHeight, rowStart, rowEnd, columnStart, columnEnd));
+//         // std::packaged_task<void()> job([scene, image, width, height, rowStart, rowEnd]() {
+//         //     rayTraceArea(scene, image, width, height, rowStart, rowEnd);
+//         // });
+
+// 		threadPool.enqueueJob(std::move(job));
+// 	}
+
+// 	threadPool.waitForThreads();
+// }

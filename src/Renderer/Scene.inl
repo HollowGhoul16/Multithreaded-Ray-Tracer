@@ -65,6 +65,7 @@ inline Color Scene::getPixelColor(const float& x, const float& y, int recurse) c
 inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 {
     float tClosestSurface = std::numeric_limits<float>::max();
+    const Mesh* meshHit = nullptr;
     HitData hitData;
 
     for(const Mesh& mesh : meshes) {
@@ -79,6 +80,7 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
         if(surfaceHitData.t < tClosestSurface) {
             tClosestSurface = surfaceHitData.t;
             hitData = surfaceHitData;
+            meshHit = &mesh;
         }
     }
 
@@ -98,13 +100,22 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 
     if(!hitData.hit) return atmosphere.skyModel(ray);
 
-    const Vec3 pointHit = hitData.point;
-    const Vec3 faceNormal = hitData.faceNormal;
-    const Material surfaceMat = hitData.material;
+    const Transform transform = meshHit->transform;
+    const Vec3 pointHit       = transform.pointToWorld(hitData.point);
+    const float worldT        = (pointHit - ray.origin).dot(ray.direction);
+    const Vec3 faceNormal     = transform.normalToWorld(hitData.faceNormal).normalize();
+    const Vec3 shadingNormal  = transform.normalToWorld(hitData.shadingNormal).normalize();
+    Material surfaceMat       = hitData.material;
+
+    ray.cone.updateWidth(worldT);
+
+    if(hitData.surfaceType == SurfaceType::Triangle && meshHit->texture.exists()) {
+        surfaceMat = meshHit->getTextureMaterial(hitData.surfacePtr, hitData.texCoord, faceNormal, ray);
+    }
 
     Color color;
     if(!surfaceMat.isMirror) {
-        color = getColor(surfaceMat, ray, pointHit, hitData.shadingNormal);
+        color = getShadedColor(surfaceMat, ray, pointHit, shadingNormal);
     }
 
     if(surfaceMat.isEmissive || !surfaceMat.isGlazed || recurse <= 0) return color;
@@ -118,7 +129,7 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
     return color;
 }
 
-inline Color Scene::getColor(const Material& mat, const Ray& ray, const Vec3& point, const Vec3& normal) const
+inline Color Scene::getShadedColor(const Material& mat, const Ray& ray, const Vec3& point, const Vec3& normal) const
 {
     if(mat.isMirror || mat.isEmissive) return mat.specularColor;
 

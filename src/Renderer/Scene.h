@@ -28,7 +28,7 @@ struct Scene {
 
     Color rayTrace(Ray& ray, int& recurse) const;
 
-    Color getColor(const Material& mat, const Ray& ray, const Vec3& point, const Vec3& normal) const;
+    Color getShadedColor(const Material& mat, const Ray& ray, const Vec3& point, const Vec3& normal) const;
 
     bool castShadow(const Light* light, const Vec3& lightDir, const Vec3& pointHit, const Vec3& surfaceNormal) const;
 

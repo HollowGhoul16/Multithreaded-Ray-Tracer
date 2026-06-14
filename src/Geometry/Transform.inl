@@ -27,7 +27,7 @@ inline Vec3 Transform::pointToWorld(const Vec3& localPoint) const
 
 inline Vec3 Transform::normalToWorld(const Vec3& localNormal) const
 {
-    return normalMatrix.matvec(localNormal).normalize();
+    return normalMatrix.matvec(localNormal);
 }
 
 inline void Transform::applyTransform(const Mat4& transformation)

@@ -6,6 +6,8 @@ inline Mesh::Mesh(const std::shared_ptr<std::vector<Triangle>>& triangles, const
     Vec3 min(std::numeric_limits<float>::max());
     Vec3 max(std::numeric_limits<float>::lowest());
 
+    if(triangles.get() == nullptr) return;
+
     for(const Triangle& triangle : *(this->triangles)) {
         std::pair<Vec3, Vec3> minMaxBounds = triangle.getBounds();
 
@@ -130,25 +132,7 @@ inline const HitData Mesh::intersection(Ray& worldRay) const
 
     if(!finalHitData.hit) return finalHitData; // Prevent unneccessary computations
 
-    finalHitData.point = transform.pointToWorld(finalHitData.point);
-    finalHitData.t = (finalHitData.point - worldRay.origin).dot(worldRay.direction); // Compute world t value
-    finalHitData.faceNormal = transform.normalToWorld(finalHitData.faceNormal);
-    finalHitData.shadingNormal = transform.normalToWorld(finalHitData.shadingNormal);
     if(!hitBox) finalHitData.material = material; // Make sure to keep AABB material
-
-    worldRay.cone.updateWidth(finalHitData.t);
-
-    if(finalHitData.surfaceType == SurfaceType::Triangle && texture.exists() && finalHitData.texCoord.x != -1 && finalHitData.texCoord.y != -1) {
-        float lambda = static_cast<const Triangle*>(finalHitData.surface)->getLODConstant(transform.modelMatrix);
-        lambda += std::log2(worldRay.cone.width);
-        lambda += 0.5 * log2(texture.baseLevel.width * texture.baseLevel.height);
-        lambda -= std::log2(std::abs(worldRay.direction.dot(finalHitData.faceNormal)));
-        lambda -= 0.5f; // Constant to prevent slight overblur
-
-        Color texColor = texture.sample(finalHitData.texCoord.x, finalHitData.texCoord.y, lambda);
-        finalHitData.material.ambientColor = texColor;
-        finalHitData.material.diffuseColor = texColor;
-    }
 
     // AABB is the inverted color of the mesh
     if(hitBox && selected) { // TODO: Fix this weird logic for materials when selected or debug mode
@@ -159,6 +143,22 @@ inline const HitData Mesh::intersection(Ray& worldRay) const
     }
 
     return finalHitData;
+}
+
+inline const Material Mesh::getTextureMaterial(const Surface* surface, const Vec2& texCoord, const Vec3& faceNormal, const Ray& ray) const
+{
+    Material texMaterial = this->material;
+    float lambda = static_cast<const Triangle*>(surface)->getLODConstant(transform.modelMatrix);
+    lambda += std::log2(ray.cone.width);
+    lambda += 0.5 * log2(texture.baseLevel.width * texture.baseLevel.height);
+    lambda -= std::log2(std::abs(ray.direction.dot(faceNormal)));
+    lambda -= 0.5f; // Constant to prevent slight overblur
+
+    Color texColor = texture.sample(texCoord.x, texCoord.y, lambda);
+    texMaterial.ambientColor = texColor;
+    texMaterial.diffuseColor = texColor;
+
+    return texMaterial;
 }
 
 inline Mesh Mesh::duplicate() const

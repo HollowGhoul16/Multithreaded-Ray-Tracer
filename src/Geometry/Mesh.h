@@ -41,6 +41,8 @@ struct Mesh {
 
     const HitData intersection(Ray& worldRay) const;
 
+    const Material getTextureMaterial(const Surface* surface, const Vec2& texCoord, const Vec3& faceNormal, const Ray& ray) const;
+
     Mesh duplicate() const;
 
     void applyTexture(const TextureData& textureData, const Texture::SampleFilter& sampleFilter);
