@@ -67,10 +67,10 @@ inline Mesh::~Mesh()
     for (Surface* surface : surfaces) delete surface;
 }
 
-inline const HitData Mesh::AABBintersection(const Ray& worldRay, const float& tClosestSurface) const
+inline const HitData Mesh::AABBintersection(const Ray& worldRay) const
 {
     Ray localRay = transform.rayToLocal(worldRay);
-    return aabb.intersection(localRay, tClosestSurface);
+    return aabb.intersection(localRay);
 }
 
 inline const bool Mesh::AABBcontains(const Vec3& worldPoint) const

@@ -28,7 +28,7 @@ const char *fragmentShaderSource = fragmentShaderSourceString.c_str();
 // In front and center
 Camera* cameras[2] = {
     new OrthographicCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0)),
-    new PerspectiveCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0), 250.0)
+    new PerspectiveCamera(Vec3(0, 100, 100), Vec3(0, 100, 0), Vec3(0, 1, 0), 270.0)
 };
 
 Scene* scene = nullptr;
@@ -219,8 +219,8 @@ int main()
     // Light* pointlight1  = new PointLight(RED, Vec3(40, 60, -170), 1000, lightSphere1);
     // // lights.push_back(pointlight1);
 
-    // Surface* lightSphere2 = new Sphere(Vec3(0, 50, -250), 3.0f, GREEN_LIGHT_MAT);
-    // Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -250), 1000, lightSphere2);
+    // Surface* lightSphere2 = new Sphere(Vec3(0, 50, -280), 3.0f, GREEN_LIGHT_MAT);
+    // Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -280), 1000, lightSphere2);
     // lights.push_back(pointlight2);
 
     scene = new Scene(SUN_SET, std::move(meshes), std::move(lights), cameras);
@@ -239,7 +239,8 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", glfwGetPrimaryMonitor(), NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", NULL, NULL);
+    // glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
     glfwSetMouseButtonCallback(window, mouseCallback);
     glfwSetKeyCallback(window, keyCallback);
 
@@ -349,8 +350,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    imageWidth  = 600; // keep it in powers of 2!
-    imageHeight = 400; // keep it in powers of 2!
+    imageWidth  = 640; // keep it in powers of 2! // 640x360
+    imageHeight = 480; // keep it in powers of 2!
     imageData = new unsigned char[imageWidth * imageHeight * 3]; // TODO: attempt dynamic texture sizing
 
     ThreadPool threadPool(MAX_RENDER_THREAD_COUNT);
@@ -548,27 +549,27 @@ void processInput(GLFWwindow *window)
     // Rotations (Suffers from gimbal lock, would need quaternions to solve)
 
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->pitch(THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_PITCH);
     }
 
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->pitch(-THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_PITCH_INVERSE);
     }
 
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_YAW_INVERSE);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->yaw(-THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_YAW);
     }
 
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->roll(-THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_ROLL);
     }
 
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        for(Camera* camera : cameras) camera->roll(THETA);
+        for(Camera* camera : cameras) camera->applyTransform(ROTATION_ROLL_INVERSE);
     }
 }
 

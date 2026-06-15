@@ -20,6 +20,14 @@ inline Vec3 Transform::pointToLocal(const Vec3& worldPoint) const
     return inverseMatrix.matvec(worldPoint);
 }
 
+inline float Transform::tToWorld(const Ray& worldRay, const Vec3& localPointHit) const
+{
+    Vec3 worldPointHit = pointToWorld(localPointHit);
+    float tWorld = (worldPointHit - worldRay.origin).dot(worldRay.direction);
+
+    return tWorld;
+}
+
 inline Vec3 Transform::pointToWorld(const Vec3& localPoint) const
 {
     return modelMatrix.matvec(localPoint);

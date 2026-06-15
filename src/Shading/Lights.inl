@@ -2,13 +2,13 @@
 
 // Light Struct
 
-inline Light::Light(const Color& c, const float& i, const LightType& t)
+inline Light::Light(const Color& c, const float& i, const Type& t)
                    : color(c), intensity(i), type(t) {}
 
 // DirectionalLight struct
 
 inline DirectionalLight::DirectionalLight(const Color& c, const Vec3& d, const float& i)
-                                         : Light(c, i, LightType::Directional), direction(d.normalize()) {}
+                                         : Light(c, i, Type::Directional), direction(d.normalize()) {}
 
 inline float DirectionalLight::calculateIntensity(const Vec3& point) const
 {
@@ -28,7 +28,7 @@ inline float DirectionalLight::distanceTo(const Vec3& point) const
 // PointLight struct
 
 inline PointLight::PointLight(const Color& c, const Vec3& o, const float& i, Surface* s)
-                             : Light(c, i, LightType::Point), origin(o), surface(s) {}
+                             : Light(c, i, Type::Point), origin(o), surface(s) {}
 
 inline float PointLight::calculateIntensity(const Vec3& point) const
 {

@@ -23,15 +23,19 @@ inline Mesh* Scene::selectMesh(const float& x, const float& y)
 
     for(Mesh& mesh : meshes) {
         if(!mesh.AABBcontains(ray.origin)) {
-            HitData meshHitData = mesh.AABBintersection(ray, tClosestSurface);
-            if(!meshHitData.hit || meshHitData.t > tClosestSurface) continue;
+            HitData meshHitData = mesh.AABBintersection(ray);
+            if(!meshHitData.hit) continue;
+
+            float tMeshWorld = mesh.transform.tToWorld(ray, meshHitData.point);
+            if(tMeshWorld > tClosestSurface) continue;
         }
 
         HitData surfaceHitData = mesh.intersection(ray);
         if(!surfaceHitData.hit) continue;
 
-        if(surfaceHitData.t < tClosestSurface) {
-            tClosestSurface = surfaceHitData.t;
+        float tSurfaceWorld = mesh.transform.tToWorld(ray, surfaceHitData.point);
+        if(tSurfaceWorld < tClosestSurface) {
+            tClosestSurface = tSurfaceWorld;
             closestMesh = &mesh;
         }
     }
@@ -70,23 +74,27 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
 
     for(const Mesh& mesh : meshes) {
         if(!mesh.AABBcontains(ray.origin)) {
-            HitData meshHitData = mesh.AABBintersection(ray, tClosestSurface);
-            if(!meshHitData.hit || meshHitData.t > tClosestSurface) continue;
+            HitData meshHitData = mesh.AABBintersection(ray);
+            if(!meshHitData.hit) continue;
+
+            float tMeshWorld = mesh.transform.tToWorld(ray, meshHitData.point);
+            if(tMeshWorld > tClosestSurface) continue;
         }
 
         HitData surfaceHitData = mesh.intersection(ray);
         if(!surfaceHitData.hit) continue;
 
-        if(surfaceHitData.t < tClosestSurface) {
-            tClosestSurface = surfaceHitData.t;
+        float tSurfaceWorld = mesh.transform.tToWorld(ray, surfaceHitData.point);
+        if(tSurfaceWorld < tClosestSurface) {
+            tClosestSurface = tSurfaceWorld;
             hitData = surfaceHitData;
             meshHit = &mesh;
         }
     }
 
     for(const Light* light : lights) {
-        if(light->type == Light::LightType::Point) {
-            PointLight* pt = (PointLight*) light;
+        if(light->type == Light::Type::Point) {
+            const PointLight* pt = static_cast<const PointLight*>(light);
             HitData surfaceHitData = pt->surface->intersection(ray);
 
             if(!surfaceHitData.hit) continue;
@@ -99,6 +107,7 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
     }
 
     if(!hitData.hit) return atmosphere.skyModel(ray);
+    else if(hitData.material.isEmissive) return hitData.material.specularColor;
 
     const Transform transform = meshHit->transform;
     const Vec3 pointHit       = transform.pointToWorld(hitData.point);
@@ -113,17 +122,14 @@ inline Color Scene::rayTrace(Ray& ray, int& recurse) const
         surfaceMat = meshHit->getTextureMaterial(hitData.surfacePtr, hitData.texCoord, faceNormal, ray);
     }
 
-    Color color;
-    if(!surfaceMat.isMirror) {
-        color = getShadedColor(surfaceMat, ray, pointHit, shadingNormal);
-    }
+    Color color = getShadedColor(surfaceMat, ray, pointHit, shadingNormal);
 
     if(surfaceMat.isEmissive || !surfaceMat.isGlazed || recurse <= 0) return color;
 
     ray.origin = pointHit + faceNormal * 0.001f;
     ray.direction = (ray.direction - (faceNormal * faceNormal.dot(ray.direction) * 2)).normalize();
 
-    if(surfaceMat.isMirror) return rayTrace(ray, --recurse) * surfaceMat.specularColor * surfaceMat.specularCoeff;
+    if(surfaceMat.isMirror) return rayTrace(ray, --recurse) * color * surfaceMat.specularCoeff;
     else color = color + (rayTrace(ray, --recurse) * surfaceMat.specularCoeff);
 
     return color;
@@ -166,16 +172,23 @@ inline bool Scene::castShadow(const Light* light, const Vec3& lightDir, const Ve
 {
     Ray shadowRay(pointHit + surfaceNormal * 0.001f, lightDir);
     const float distToLight = light->distanceTo(shadowRay.origin);
+    float worldT = std::numeric_limits<float>::max();
     HitData hitData;
 
     for(const Mesh& mesh : meshes) {
-        hitData = mesh.AABBintersection(shadowRay, std::numeric_limits<float>::max());
+        if(!mesh.AABBcontains(shadowRay.origin)) {
+            hitData = mesh.AABBintersection(shadowRay);
+            if(!hitData.hit) continue;
 
-        if(!hitData.hit || hitData.t > distToLight) continue;
+            worldT = mesh.transform.tToWorld(shadowRay, hitData.point);
+            if(worldT > distToLight) continue;
+        }
 
-        hitData = mesh.intersection(shadowRay); // TODO: Create dedicated shadow function to prevent complications with raycones
+        hitData = mesh.intersection(shadowRay);
+        if(!hitData.hit) continue;
 
-        if(hitData.hit && hitData.t < distToLight) return true;
+        worldT = mesh.transform.tToWorld(shadowRay, hitData.point);
+        if(worldT < distToLight) return true;
     }
 
     return false;

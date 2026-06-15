@@ -33,7 +33,7 @@ struct Mesh {
 
     ~Mesh();
 
-    const HitData AABBintersection(const Ray& worldRay, const float& tClosestSurface) const;
+    const HitData AABBintersection(const Ray& worldRay) const;
 
     const bool AABBcontains(const Vec3& worldPoint) const;
 

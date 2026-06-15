@@ -14,11 +14,7 @@ struct Camera {
 
     void updateOrigin(const Vec3& shift);
 
-    void pitch(const float& theta);
-
-    void yaw(const float& theta);
-
-    void roll(const float& theta);
+    void applyTransform(const Mat4& transform);
 };
 
 struct OrthographicCamera : Camera {

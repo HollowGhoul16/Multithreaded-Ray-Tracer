@@ -15,6 +15,8 @@ struct Transform {
 
     Vec3 pointToLocal(const Vec3& worldPoint) const;
 
+    float tToWorld(const Ray& worldRay, const Vec3& localPointHit) const;
+
     Vec3 pointToWorld(const Vec3& localPoint) const;
 
     Vec3 normalToWorld(const Vec3& localNormal) const;

@@ -9,7 +9,7 @@ struct AABB {
     Vec3 min, max;
     Rectangle wireframe[24];
 
-    HitData intersection(const Ray& ray, const float& tClosestMax) const;
+    HitData intersection(const Ray& ray) const;
 
     bool contains(const Vec3& p) const;
 

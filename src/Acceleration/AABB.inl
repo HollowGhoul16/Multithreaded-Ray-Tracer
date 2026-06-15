@@ -1,6 +1,6 @@
 #include "AABB.h"
 
-inline HitData AABB::intersection(const Ray &ray, const float& tClosestMax) const
+inline HitData AABB::intersection(const Ray &ray) const
 {
     HitData hitData;
 
@@ -30,12 +30,11 @@ inline HitData AABB::intersection(const Ray &ray, const float& tClosestMax) cons
 
     if(tmax < 0) return hitData; // box is behind the ray
 
-    float tHit = (tmin >= 0) ? tmin : tmax;
+    float t = (tmin >= 0) ? tmin : tmax;
 
-    if(tHit <= tClosestMax) {
-        hitData.hit = true;
-        hitData.t = tHit;
-    }
+    hitData.hit = true;
+    hitData.t = t;
+    hitData.point = ray.parametrize(t);
 
     return hitData;
 }

@@ -9,13 +9,14 @@ struct Light {
     Color color;
     float intensity;
 
-    enum class LightType {
-        Directional, Point
+    enum class Type {
+        Directional,
+        Point
     };
 
-    LightType type;
+    Type type;
 
-    Light(const Color& c, const float& i, const LightType& t);
+    Light(const Color& c, const float& i, const Type& t);
 
     virtual ~Light() = default;
 

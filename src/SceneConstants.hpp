@@ -12,8 +12,8 @@
 
 // Setting Constants
 
-constexpr unsigned int SCR_WIDTH  = 800;
-constexpr unsigned int SCR_HEIGHT = 800;
+constexpr unsigned int SCR_WIDTH  = 1280;
+constexpr unsigned int SCR_HEIGHT = 960;
 
 const unsigned int MAX_THREAD_COUNT        = maxThreadCount();
 const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
@@ -72,7 +72,7 @@ const Color MIDNIGHT_HOR_COLOR  (10, 10, 80);
 
 constexpr float AMB_COEFF = 0.05f; // Ambient Coefficient
 constexpr float DIF_COEFF = 0.50f; // Diffuse Coefficient
-constexpr float SPE_COEFF = 0.45f;  // Specular Coefficient
+constexpr float SPE_COEFF = 0.45f; // Specular Coefficient
 constexpr float SPE_EXP   = 100;   // Specular Exponent
 
 constexpr bool  IS_GLAZED = true;
