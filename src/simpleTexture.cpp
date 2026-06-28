@@ -6,6 +6,7 @@
 #include <iostream>
 #include <future>
 
+#include "Window/Window.h"
 #include "Resources/ResourceManager.h"
 #include "Renderer/Scene.h"
 #include "Core/MeshSelector.h"
@@ -15,7 +16,6 @@
 
 #include "SceneConstants.hpp"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 std::string vertexShaderSourceString = readShaderFile("../src/Shaders/source.vs");
@@ -34,19 +34,71 @@ Camera* cameras[2] = {
 Scene* scene = nullptr;
 ThreadPool* threadPoolptr = nullptr;
 
-unsigned char* imageData = nullptr;
-unsigned int imageWidth, imageHeight;
+unsigned char* FRAMEBUFFER = nullptr;
 
 bool Mesh::wireframeAABB = false;
 
 MeshSelector meshSelector;
 double mouseX, mouseY;
 
-void getMouseWorldCoords(GLFWwindow *window, double& worldX, double& worldY)
+bool getMouseWorldCoords(GLFWwindow* window, double& worldX, double& worldY)
 {
     glfwGetCursorPos(window, &mouseX, &mouseY);
-    worldX = ((mouseX / SCR_WIDTH) * imageWidth) + 0.5 - 0.5 * imageWidth;
-    worldY = ((-(mouseY / SCR_HEIGHT) + 1) * imageHeight) + 0.5 - 0.5 * imageHeight;
+
+    int win_width, win_height;
+    int fb_width, fb_height;
+    glfwGetWindowSize(window, &win_width, &win_height);
+    glfwGetFramebufferSize(window, &fb_width, &fb_height);
+
+    // scale mouse into framebuffer space
+    double scale_x = (double)fb_width / win_width;
+    double scale_y = (double)fb_height / win_height;
+
+    double px = mouseX * scale_x;
+    double py = mouseY * scale_y;
+
+    // compute viewport
+    double window_aspect = (double)fb_width / fb_height;
+
+    double view_width, view_height;
+    double view_x, view_y;
+
+    if (window_aspect > FRAMEBUFFER_ASPECT) {
+        view_height = fb_height;
+        view_width = fb_height * FRAMEBUFFER_ASPECT;
+        view_x = (fb_width - view_width) * 0.5;
+        view_y = 0.0;
+    }
+    else {
+        view_width = fb_width;
+        view_height = fb_width / FRAMEBUFFER_ASPECT;
+        view_x = 0.0;
+        view_y = (fb_height - view_height) * 0.5;
+    }
+
+    // check if inside game viewport
+    if (px < view_x || px > view_x + view_width ||
+        py < view_y || py > view_y + view_height)
+    {
+        return false;
+    }
+
+    // normalize in game viewport
+    double nx = (px - view_x) / view_width;
+    double ny = (py - view_y) / view_height;
+
+    // flip y
+    ny = 1.0 - ny;
+
+    // convert into game framebuffer space
+    double game_x = nx * FRAMEBUFFER_WIDTH;
+    double game_y = ny * FRAMEBUFFER_HEIGHT;
+
+    // convert into image plane space
+    worldX = game_x - FRAMEBUFFER_WIDTH * 0.5;
+    worldY = game_y - FRAMEBUFFER_HEIGHT * 0.5;
+
+    return true;
 }
 
 // From https://www.glfw.org/docs/3.3/input_guide.html
@@ -58,11 +110,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     // Screenshot
 
-    if (key == GLFW_KEY_RIGHT_SHIFT && action == GLFW_PRESS) Screenshot::screenshot(imageData, imageWidth, imageHeight);
+    if (key == GLFW_KEY_RIGHT_SHIFT && action == GLFW_PRESS) Screenshot::screenshot(FRAMEBUFFER, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 
     // Toggle Debug AABB (note: displays as an OBB)
 
-    if (key == GLFW_KEY_B && action == GLFW_PRESS) Mesh::wireframeAABB = !Mesh::wireframeAABB;
+    if (key == GLFW_KEY_B && action == GLFW_PRESS) Mesh::toggleDebug();
 
     // Duplicates currently selected meshes
 
@@ -92,7 +144,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         double worldX, worldY;
-        getMouseWorldCoords(window, worldX, worldY);
+        if(getMouseWorldCoords(window, worldX, worldY) == false) return;
 
         Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
         if(selectedMesh != nullptr) meshSelector.select(selectedMesh);
@@ -101,7 +153,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         double worldX, worldY;
-        getMouseWorldCoords(window, worldX, worldY);
+        if(getMouseWorldCoords(window, worldX, worldY) == false) return;
 
         Mesh* selectedMesh = scene->selectMesh(worldX, worldY);
         if(selectedMesh != nullptr) meshSelector.deselect(selectedMesh);
@@ -110,22 +162,6 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 int main()
 {
-    // unsigned int textureSideLength;
-
-    // while(true) {
-    //     std::cout << "\nEnter side length of the rendered square texture (logical pixels).\n"
-    //               << "Sets texture resolution (NxN) before sampling to the framebuffer: ";
-
-    //     std::cin >> textureSideLength;
-
-    //     if(isPowerOfTwo(textureSideLength)) {
-    //         std::cout << "\n";
-    //         break;
-    //     }
-
-    //     std::cout << "Error.\n";
-    // }
-
     ResourceManager resourceManager;
 
     std::vector<Mesh> meshes;
@@ -205,7 +241,7 @@ int main()
     cube.applyTexture(brickTexture, Texture::SampleFilter::Linear_Mipmap_Linear);
 
     meshes.push_back(std::move(cube));
-    meshes.push_back(std::move(cube2));    
+    meshes.push_back(std::move(cube2));
 
     Mat4 pawnModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 150, -200, 1));
     MeshData pawnData = resourceManager.loadMesh("../assets/models/pawn.obj");
@@ -225,33 +261,9 @@ int main()
 
     scene = new Scene(SUN_SET, std::move(meshes), std::move(lights), cameras);
 
-    // glfw: initialize and configure
-    // ------------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-
-    // glfw window creation
-    // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Multithreaded Ray Tracer", NULL, NULL);
-    // glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-    glfwSetMouseButtonCallback(window, mouseCallback);
-    glfwSetKeyCallback(window, keyCallback);
-
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    Window window(Window::DisplayMode::FullScreen);
+    glfwSetKeyCallback(window.getWindowPointer(), keyCallback);
+    glfwSetMouseButtonCallback(window.getWindowPointer(), mouseCallback);
 
 
     // // GLEW: load all OpenGL function pointers
@@ -350,9 +362,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Create the image (RGB Array) to be displayed
-    imageWidth  = 640; // keep it in powers of 2! // 640x360
-    imageHeight = 480; // keep it in powers of 2!
-    imageData = new unsigned char[imageWidth * imageHeight * 3]; // TODO: attempt dynamic texture sizing
+    FRAMEBUFFER = new unsigned char[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT * 3]; // TODO: attempt dynamic texture sizing
 
     ThreadPool threadPool(MAX_RENDER_THREAD_COUNT);
     threadPoolptr = &threadPool;
@@ -363,18 +373,16 @@ int main()
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
+    // while (!glfwWindowShouldClose(window))
+    while(window.isOpen())
     {
         // input
         // -----
-        processInput(window);
+        processInput(window.getWindowPointer());
 
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
 
         // bind Texture
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -386,17 +394,14 @@ int main()
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window.update();
 
-        rayTrace(scene, imageData, imageWidth, imageHeight, threadPool);
+        rayTrace(scene, FRAMEBUFFER, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, threadPool);
 
-        if (imageData)
+        if (FRAMEBUFFER)
         {
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, FRAMEBUFFER);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else
@@ -421,7 +426,7 @@ int main()
     // ------------------------------------------------------------------
     glfwTerminate();
 
-    delete[] imageData;
+    delete[] FRAMEBUFFER;
     delete scene;
 
     return 0;
@@ -571,13 +576,4 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         for(Camera* camera : cameras) camera->applyTransform(ROTATION_ROLL_INVERSE);
     }
-}
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
 }

@@ -51,6 +51,8 @@ struct Mesh {
 
     void setCullingMode(const CullMode& cullMode);
 
+    static void toggleDebug();
+
     void toggleSelected();
 
     void markSelected();

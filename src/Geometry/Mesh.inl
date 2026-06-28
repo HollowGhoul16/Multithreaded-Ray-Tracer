@@ -186,6 +186,11 @@ inline void Mesh::setCullingMode(const CullMode& cullMode)
     this->cullMode = cullMode;
 }
 
+inline void Mesh::toggleDebug()
+{
+    wireframeAABB = !wireframeAABB;
+}
+
 inline void Mesh::toggleSelected()
 {
     selected = !selected;

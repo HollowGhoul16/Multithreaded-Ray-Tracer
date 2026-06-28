@@ -12,8 +12,9 @@
 
 // Setting Constants
 
-constexpr unsigned int SCR_WIDTH  = 1280;
-constexpr unsigned int SCR_HEIGHT = 960;
+constexpr int FRAMEBUFFER_WIDTH     = 640;
+constexpr int FRAMEBUFFER_HEIGHT    = 480;
+constexpr double FRAMEBUFFER_ASPECT = static_cast<double>(FRAMEBUFFER_WIDTH) / FRAMEBUFFER_HEIGHT;
 
 const unsigned int MAX_THREAD_COUNT        = maxThreadCount();
 const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
@@ -21,7 +22,7 @@ const unsigned int MAX_RENDER_THREAD_COUNT = maxRenderThreadCount();
 // Camera Constants
 
 constexpr float SHIFT = 2.5f;
-constexpr float THETA = 2.5f * (Math::PRECISE_PI / 180); // Converts degrees to radians for the cmath functions
+constexpr float THETA = Math::degressToRadians(2.5f); // Converts degrees to radians for the cmath functions
 
 // Transformation Matrix Constants
 

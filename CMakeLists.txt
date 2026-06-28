@@ -20,6 +20,7 @@ include_directories(
 add_executable(Main
     src/simpleTexture.cpp
     src/stb_image_impl.cpp
+    src/Window/Window.cpp
     src/Resources/ResourceManager.cpp
     src/Resources/TextureLoader.cpp
     src/Resources/TextureData.cpp
