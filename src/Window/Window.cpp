@@ -41,7 +41,7 @@ Window::Window(const DisplayMode& displayMode = DisplayMode::Windowed) : display
             currentHeight = fullscreenHeight;
             window = glfwCreateWindow(fullscreenWidth, fullscreenHeight, "Multithreaded Ray Tracer", NULL, NULL);
             break;
-        case DisplayMode::FullScreen:
+        case DisplayMode::Fullscreen:
             currentWidth = fullscreenWidth;
             currentHeight = fullscreenHeight;
             window = glfwCreateWindow(fullscreenWidth, fullscreenHeight, "Multithreaded Ray Tracer", monitor, NULL);

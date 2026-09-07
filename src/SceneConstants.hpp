@@ -226,6 +226,7 @@ const DirectionalLight DIR_LIGHT         (HORIZON_SUN_COLOR, Vec3(1, -1, -1), MA
 const DirectionalLight HIGH_NOON_LIGHT   (SUN_COLOR, Vec3(0, -1, 0), MAX_LIGHT_INTENSITY);           // Sun straight up
 const DirectionalLight HORIZON_DIR_LIGHT (HORIZON_SUN_COLOR, Vec3(0, -1, -5), MAX_LIGHT_INTENSITY);  // Sunset (on horizon)
 const DirectionalLight MIDNIGHT_LIGHT    (MIDNIGHT_MOON_COLOR, Vec3(0, -1, -5), MOON_LIGHT_INTENSITY);  // Sunset (on horizon)
+const DirectionalLight EAST_LIGHT        (SUN_COLOR, Vec3(-1, -.5, 0), MAX_LIGHT_INTENSITY);
 
 // Point Light Materials (just colors)
 
@@ -239,6 +240,13 @@ const Material GREEN_LIGHT_MAT(GREEN);
 constexpr float SUN_SIZE  = 1.0f;
 constexpr float MOON_SIZE = 0.3f;
 constexpr bool  IS_SUN    = true; // Changes skymodel type between sun and moon
+
+const std::array<std::string, 6> SKYBOX_FILES = {"../assets/skybox/vz_clear_ocean_right.png",
+                                                 "../assets/skybox/vz_clear_ocean_left.png" ,
+                                                 "../assets/skybox/vz_clear_ocean_up.png"   ,
+                                                 "../assets/skybox/vz_clear_ocean_down.png" ,
+                                                 "../assets/skybox/vz_clear_ocean_back.png" ,
+                                                 "../assets/skybox/vz_clear_ocean_front.png"};
 
 const Atmosphere HIGH_NOON (HIGH_NOON_LIGHT, SUN_SIZE, SKY_COLOR, NORM_HORIZON_COLOR, IS_SUN);
 const Atmosphere SUN_SET   (HORIZON_DIR_LIGHT, SUN_SIZE, HORIZON_SKY_COLOR, HORIZON_COLOR, IS_SUN);

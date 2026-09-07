@@ -25,7 +25,7 @@ struct Window {
     enum class DisplayMode {
         Windowed,
         Windowed_Fullscreen,
-        FullScreen
+        Fullscreen
     };
 
     DisplayMode displayMode;

@@ -241,7 +241,7 @@ int main()
     cube.applyTexture(brickTexture, Texture::SampleFilter::Linear_Mipmap_Linear);
 
     meshes.push_back(std::move(cube));
-    meshes.push_back(std::move(cube2));
+    // meshes.push_back(std::move(cube2));
 
     Mat4 pawnModelMatrix(Vec4(50, 0, 0, 0), Vec4(0, 50, 0, 0), Vec4(0, 0, 50, 0), Vec4(0, 150, -200, 1));
     MeshData pawnData = resourceManager.loadMesh("../assets/models/pawn.obj");
@@ -259,9 +259,13 @@ int main()
     // Light* pointlight2  = new PointLight(GREEN, Vec3(0, 50, -280), 1000, lightSphere2);
     // lights.push_back(pointlight2);
 
-    scene = new Scene(SUN_SET, std::move(meshes), std::move(lights), cameras);
+    // Skybox
+    const Cubemap SKYBOX_CUBEMAP = resourceManager.loadCubemap(SKYBOX_FILES);
+    const Atmosphere SKYBOX(EAST_LIGHT, SKYBOX_CUBEMAP);
 
-    Window window(Window::DisplayMode::FullScreen);
+    scene = new Scene(SKYBOX, std::move(meshes), std::move(lights), cameras);
+
+    Window window(Window::DisplayMode::Fullscreen);
     glfwSetKeyCallback(window.getWindowPointer(), keyCallback);
     glfwSetMouseButtonCallback(window.getWindowPointer(), mouseCallback);
 
@@ -373,7 +377,6 @@ int main()
 
     // render loop
     // -----------
-    // while (!glfwWindowShouldClose(window))
     while(window.isOpen())
     {
         // input

@@ -67,8 +67,8 @@ inline Color Texture::linear(const float& u, const float& v, const int& mipmapLe
     int x0 = static_cast<int>(std::floor((u * data->width)  - 0.5f));
     int y0 = static_cast<int>(std::floor((v * data->height) - 0.5f));
 
-    float fracX = ((u * data->width )  - 0.5f) - x0;
-    float fracY = ((v * data->height)  - 0.5f) - y0;
+    float fracX = ((u * data->width ) - 0.5f) - x0;
+    float fracY = ((v * data->height) - 0.5f) - y0;
 
     int x1 = x0 + 1;
     int y1 = y0 + 1;

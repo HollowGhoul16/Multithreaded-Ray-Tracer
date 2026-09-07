@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "../include/stb_image.h"
+#include "../../include/stb_image.h"
 #include "Shading/Color.h"
 
 struct TextureData {
